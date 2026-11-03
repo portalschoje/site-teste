@@ -1,0 +1,89 @@
+/* SC Hoje — site de teste. MOBILE FIRST: a base é o celular; telas maiores entram com min-width. */
+@font-face{font-family:"Merriweather";font-weight:400;font-display:swap;src:url(/estatico/fontes/merriweather-400.woff2) format("woff2")}
+@font-face{font-family:"Merriweather";font-weight:900;font-display:swap;src:url(/estatico/fontes/merriweather-900.woff2) format("woff2")}
+:root{--azul:#0034fc;--texto:#1d1d1f;--titulo:#412d2f;--cinza:#5a5a5a;--borda:#e2e2e2;--serif:"Merriweather",Georgia,serif;--sans:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;font:16px/1.5 var(--sans);color:var(--texto);background:#fff}
+img{max-width:100%;height:auto;display:block}
+a{color:inherit;text-decoration:none}
+h1,h2,h3,p,ul{margin:0}ul{padding:0;list-style:none}
+.c{width:100%;max-width:1200px;margin:0 auto;padding:0 16px}
+.faixa-teste{background:#fff3cd;color:#6b5400;font:600 12px/1 var(--sans);text-align:center;padding:7px 8px}
+/* topo */
+.topo{background:#fff;border-bottom:3px solid var(--azul)}
+.topo .c{display:flex;align-items:center;justify-content:center;height:64px}
+.topo img{width:150px;height:auto}
+.menu{background:#fff;border-bottom:1px solid var(--borda);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+.menu ul{display:flex;gap:4px;padding:0 12px}
+.menu a{display:block;padding:12px 10px;font:700 14px/1 var(--sans);text-transform:uppercase;letter-spacing:.02em;color:var(--titulo)}
+.menu a:hover{color:var(--azul)}
+/* chapéu e títulos */
+.chapeu{font:700 11px/1 var(--sans);text-transform:uppercase;letter-spacing:.06em;color:var(--azul)}
+.titulo{font:900 18px/1.2 var(--serif);color:var(--titulo)}
+.data{font:400 12px/1 var(--sans);color:var(--cinza)}
+/* manchete */
+.capa{padding-top:0}
+.manchete{display:block;margin:0 -16px 16px}
+.manchete .foto{aspect-ratio:3/2;background:#e9edf3}
+.manchete .foto img{width:100%;height:100%;object-fit:cover}
+.manchete .txt{padding:12px 16px 0}
+.manchete .titulo{font-size:26px;margin:6px 0 8px}
+.manchete p{font-size:15px;color:var(--cinza)}
+/* cartões */
+.cartao{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:14px 0;border-bottom:1px solid var(--borda);align-items:start}
+.cartao .foto{aspect-ratio:3/2;background:#e9edf3;overflow:hidden}
+.cartao .foto img{width:100%;height:100%;object-fit:cover}
+.cartao .titulo{font-size:16px;margin-top:5px}
+.cartao .data{display:block;margin-top:6px}
+/* editorias */
+.capa{margin-top:0}
+.editoria{margin-top:24px}
+.editoria__barra{display:flex;justify-content:space-between;align-items:center;background:var(--azul);color:#fff;padding:0 14px;height:40px}
+.editoria__barra h2{font:700 16px/1 var(--sans);text-transform:uppercase}
+.editoria__barra a{font:600 13px/1 var(--sans)}
+.grade{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
+/* matéria */
+.materia{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+.materia h1{font:900 28px/1.18 var(--serif);color:var(--titulo);margin:8px 0 12px}
+.materia .linha-fina{font-size:18px;line-height:1.4;color:var(--cinza);margin-bottom:14px}
+.materia .meta{font:400 13px/1.4 var(--sans);color:var(--cinza);margin-bottom:16px}
+.materia .capa{margin:0 -16px 6px}
+.materia .capa img{width:100%}
+.materia .legenda{font-size:12px;color:var(--cinza);margin-bottom:16px}
+.texto{font:400 18px/1.7 var(--serif)}
+.texto p,.texto ul,.texto ol,.texto figure,.texto blockquote{margin:0 0 1.1em}
+.texto h2,.texto h3{font:900 21px/1.3 var(--serif);margin:1.4em 0 .6em;color:var(--titulo)}
+.texto a{color:var(--azul);text-decoration:underline}
+.texto ul,.texto ol{padding-left:1.3em}.texto ul{list-style:disc}
+.texto iframe,.texto video{width:100%}
+.texto blockquote{border-left:4px solid var(--azul);padding-left:14px;color:var(--cinza)}
+.titulo-pag{font:900 24px/1.2 var(--serif);color:var(--titulo);padding:20px 0 4px}
+.mais{margin-top:24px;padding:0 0 24px}
+.mais>h2{font:900 20px/1.2 var(--serif);padding-bottom:4px;border-bottom:3px solid var(--azul);display:inline-block;margin-bottom:4px}
+/* rodapé */
+.rodape{background:#0b1b3f;color:#fff;margin-top:32px;padding:28px 0;text-align:center}
+.rodape img{width:130px;margin:0 auto 12px}
+.rodape p{font-size:13px;opacity:.8}
+/* tablet */
+@media (min-width:768px){
+ .topo .c{height:80px}.topo img{width:180px}
+ .menu ul{justify-content:center;gap:12px}
+ .manchete{margin:0 0 20px}
+ .manchete .txt{padding:0}.manchete .titulo{font-size:32px}
+ .lista .cartao{grid-template-columns:200px minmax(0,1fr);gap:16px}
+ .lista .cartao .titulo{font-size:19px}
+ .grade{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 24px}
+ .materia h1{font-size:36px}
+}
+/* computador */
+@media (min-width:1024px){
+ .c{padding:0 24px}
+ .capa{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:28px;align-items:start}
+ .manchete .titulo{font-size:38px}
+ .manchete .foto{aspect-ratio:16/9}
+ .capa{padding-top:20px}
+ .lateral .cartao:first-child{padding-top:0}
+ .grade{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .cartao.vert{grid-template-columns:minmax(0,1fr)}
+ .cartao.vert .titulo{font-size:17px}
+}

@@ -1,0 +1,5 @@
+SITE DE TESTE SC HOJE (mobile first, sem WordPress)
+gerar.js  -> lê as notícias do schoje.news e gera as páginas
+estatico/ -> CSS, fontes e logo
+nginx-teste.conf -> configuração do servidor
+atualizar.sh -> atualiza o site
