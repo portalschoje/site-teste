@@ -40,7 +40,7 @@ const wr=(f,c)=>{const p=path.join(OUT,f);fs.mkdirSync(path.dirname(p),{recursiv
 
  // MATÉRIAS
  for(const x of L){const p=x.p;const rel=L.filter(y=>y.slug!==x.slug&&x.cat&&y.cat&&y.cat.id===x.cat.id).slice(0,4);const autor=p._embedded?.author?.[0]?.name;
-  let t=cabeca(x.tit+' — SC Hoje',x.res.slice(0,160),p.link,`<meta property="og:title" content="${esc(x.tit)}">${x.im?`<meta property="og:image" content="${esc(x.im.url)}">`:''}`)+topo+`<main><article class="materia"><span class="chapeu">${esc(x.cat?.name||'')}</span><h1>${esc(x.tit)}</h1>${x.res?`<p class="linha-fina">${esc(x.res)}</p>`:''}<p class="meta">${autor?esc(autor)+' · ':''}${dataBR(x.data)}</p>${x.im?`<div class="capa"><img src="${esc(x.im.url)}" alt="${esc(x.im.alt)}" fetchpriority="high"></div>`:''}<div class="texto">${limpa(p.content?.rendered)}</div></article>${rel.length?`<section class="c mais lista"><h2>Leia também</h2>${rel.map(y=>cartao(y)).join('')}</section>`:''}</main>`+rodape;
+  let t=cabeca(x.tit+' — SC Hoje',x.res.slice(0,160),p.link,`<meta property="og:title" content="${esc(x.tit)}">${x.im?`<meta property="og:image" content="${esc(x.im.url)}">`:''}`)+topo+`<main><article class="materia"><span class="chapeu">${esc(x.cat?.name||'')}</span><h1>${esc(x.tit)}</h1>${x.res?`<p class="linha-fina">${esc(x.res)}</p>`:''}<p class="meta">${autor?esc(autor)+' · ':''}${dataBR(x.data)}</p>${x.im?`<div class="foto-capa"><img src="${esc(x.im.url)}" alt="${esc(x.im.alt)}" fetchpriority="high"></div>`:''}<div class="texto">${limpa(p.content?.rendered)}</div></article>${rel.length?`<section class="c mais lista"><h2>Leia também</h2>${rel.map(y=>cartao(y)).join('')}</section>`:''}</main>`+rodape;
   wr(`materia/${x.slug}/index.html`,t)}
 
  // EDITORIAS
