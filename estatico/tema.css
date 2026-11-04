@@ -2217,3 +2217,8 @@ body.com-ancora .whats-flutuante{bottom:110px}
 .tempo__dias li span:first-child{text-transform:capitalize}
 .tempo__dias li:last-child{border-bottom:0;padding-bottom:0}
 .tempo__dias b{font-weight:700}
+
+/* 0.6.1: título grande dos blocos das editorias preenche o quadro (como no Metrópoles) */
+@media (min-width:1024px){
+.bloco__principal .card--bloco .card__titulo{font-size:34px!important;line-height:1.1!important;letter-spacing:-.03em}
+}
