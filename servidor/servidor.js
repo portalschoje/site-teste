@@ -109,7 +109,7 @@ async function verificarBoletim() {
 let gerando = false;
 function gerarSite() {
   if (gerando) return Promise.resolve(); gerando = true;
-  return new Promise(ok => execFile(process.execPath, [path.join(__dirname, '..', 'gerar.js')], { timeout: 240000, env: Object.assign({}, process.env, { OUT: SITE_DIR }) }, (er, so, se) => { gerando = false; if (er) console.log('gerar erro:', (se || er.message).slice(0, 200)); ok(); }));
+  return new Promise(ok => execFile(process.execPath, [path.join(__dirname, '..', 'gerar.js')], { timeout: 240000, env: Object.assign({}, process.env, { OUT: SITE_DIR, DADOS_DIR: DADOS }) }, (er, so, se) => { gerando = false; if (er) console.log('gerar erro:', (se || er.message).slice(0, 200)); ok(); }));
 }
 const GERAR_MIN = C('GERAR_CADA_MIN') === '' ? 5 : +C('GERAR_CADA_MIN');
 async function ciclo() { if (GERAR_MIN !== 0) await gerarSite(); await verificarNovas(); await verificarBoletim(); }
@@ -137,6 +137,7 @@ ${bloco('Testar e-mail', `<form method="post" action="/admin/teste-email"><label
 }
 
 /* ---------- rotas ---------- */
+const redacao = require('./redacao.js')({ DADOS, ler, gravar, esc, C, NOME, json, html });
 const ipDe = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x'), rota = u.pathname, ip = ipDe(req);
@@ -173,6 +174,7 @@ http.createServer(async (req, res) => {
       if (d.inscritos.length !== n) gravar('news.json', d);
       return html(res, 200, pagSimples('Inscrição cancelada', 'Você não vai mais receber o Boletim SC Hoje.'));
     }
+    if (rota === '/redacao' || rota.startsWith('/redacao/')) return await redacao(req, res, rota, u);
     if (rota === '/admin' || rota.startsWith('/admin/')) {
       if (!autorizado(req)) { res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="Painel SC Hoje"' }); return res.end('Acesso restrito'); }
       if (req.method === 'GET') return html(res, 200, painel(''));
