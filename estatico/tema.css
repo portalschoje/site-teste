@@ -2274,3 +2274,25 @@ body.com-ancora .whats-flutuante{bottom:110px}
 .tempo-topo__cidade{display:none;margin-top:4px;font:700 12px/1 "Roboto Menu",Roboto,Arial,sans-serif}
 @media (min-width:768px){.tempo-topo__cidade{display:block}}
 @media (min-width:768px){.tempo-topo__temp{font-size:32px}.tempo-topo__ico{width:38px;height:29px}.tempo-topo__cidade{font-size:13px}}
+
+/* 0.7.2: categoria em duas colunas; anúncios 300x600 antes e depois das redes */
+.pub-slot{display:none}
+.cat__redes{margin:0 0 4px}
+@media (min-width:1024px){
+.cat__grade{grid-template-columns:minmax(0,1fr) 300px;gap:0 40px}
+.cat__lado{align-self:start}
+.cat__lado .cat__lat:first-child{margin-top:0}
+.pub-slot{display:block;margin:0 0 28px}
+.pub-slot__rot{display:block;margin:0 0 6px;font:500 10px/1 "Roboto Menu",Roboto,Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#8a8a8a}
+.pub-slot__caixa{width:300px;height:600px;background:#f2f2f2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#a0a0a0;font:500 13px/1 "Roboto Menu",Roboto,Arial,sans-serif}
+.pub-slot__caixa b{font-weight:700;font-size:18px;color:#b4b4b4}
+.cat__redes{margin:0 0 28px}
+.cat__redes .cat__lat{margin-top:0}
+.cat-item__fina{font-size:14px}
+}
+
+/* 0.7.3: tempo no topo com letra reta (sem serifa), como no modelo */
+.tempo-topo__temp,.tempo-topo__cidade{font-family:"Open Sans","Segoe UI",Arial,Helvetica,sans-serif}
+.tempo-topo__temp{font-weight:700;letter-spacing:-.02em;font-size:26px}
+.tempo-topo__cidade{font-weight:700;letter-spacing:0}
+@media (min-width:768px){.tempo-topo__temp{font-size:30px}}
