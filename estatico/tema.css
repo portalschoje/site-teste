@@ -2323,3 +2323,8 @@ a.tempo-topo{text-decoration:none}
 .tp-card__ico svg{width:128px;height:117px}
 .tp-card__dados{grid-column:auto;border-top:0;padding:0;margin:0;grid-template-columns:1fr;gap:14px}
 }
+
+/* 0.9 — menu Institucional na gaveta */
+.gaveta__inst{margin-top:8px;border-top:6px solid var(--borda,#e5e5e5)}
+.gaveta__inst ul{list-style:none;margin:0;padding:0}
+.gaveta__inst a{display:block;padding:11px 0;border-bottom:1px solid var(--borda);font:400 15px var(--sans);color:#555}

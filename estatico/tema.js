@@ -388,14 +388,21 @@
 		var dia = cap(new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(d)) + ', ' + d.getDate();
 		return i === 0 ? 'Hoje, ' + dia : i === 1 ? 'Amanhã, ' + dia : dia;
 	}
+	var rosa = function (g) { return ['N', 'NE', 'L', 'SE', 'S', 'SO', 'O', 'NO'][Math.round(g / 45) % 8]; };
+	var ondas = function (D, i) {
+		var h = D.onda_altura && D.onda_altura[i];
+		if (h === null || h === undefined || isNaN(h)) return '—';
+		var d = D.onda_direcao && D.onda_direcao[i];
+		return Number(h).toFixed(1).replace('.', ',') + ' m' + (d === null || d === undefined ? '' : ' · ' + rosa(d));
+	};
 	var n = function (v, c) { return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(c).replace('.', ','); };
-	var IP = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 17a9 9 0 1 1 16 0M12 13l4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+	var IP = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M2 9c2.5-3 5-3 7.500 0s5 3 7.500 0c1.500-1.800 3-2.400 5-2M2 15c2.500-3 5-3 7.500 0s5 3 7.500 0c1.500-1.800 3-2.400 5-2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 	var IC = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0H3Zm9 0v7a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 	var IV = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 	function cartao(D, i) {
 		return '<article class="tp-card"><div class="tp-card__dia"><span>Previsão do tempo para</span><h2>' + rotulo(D.time[i], i) + '</h2><p class="tp-card__temps"><b>' + Math.round(D.temperature_2m_max[i]) + 'º</b><i>' + Math.round(D.temperature_2m_min[i]) + 'º</i></p></div>' +
 			'<div class="tp-card__ico" title="' + texto(D.weather_code[i]) + '">' + icone(D.weather_code[i]) + '<span>' + texto(D.weather_code[i]) + '</span></div>' +
-			'<ul class="tp-card__dados"><li>' + IP + '<span><small>Pressão</small><b>' + n(D.surface_pressure_mean && D.surface_pressure_mean[i], 0) + ' hPa</b></span></li>' +
+			'<ul class="tp-card__dados"><li>' + IP + '<span><small>Ondas</small><b>' + ondas(D, i) + '</b></span></li>' +
 			'<li>' + IC + '<span><small>Precipitação</small><b>' + n(D.precipitation_sum[i], 1) + ' mm</b></span></li>' +
 			'<li>' + IV + '<span><small>Ventos de até</small><b>' + n(D.wind_speed_10m_max[i], 0) + ' km/h</b></span></li></ul></article>';
 	}
@@ -404,10 +411,14 @@
 		for (var i = 0; i < D.time.length; i++) h += cartao(D, i);
 		raiz.innerHTML = h;
 	}
-	var chave = 'sc-tempo-10d';
+	var chave = 'sc-tempo-10d-v2';
 	try { var g = JSON.parse(localStorage.getItem(chave) || 'null'); if (g && Date.now() - g.q < 30 * 60 * 1000) { pinta(g.d); return; } } catch (e) {}
-	fetch('https://api.open-meteo.com/v1/forecast?latitude=-26.99&longitude=-48.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,surface_pressure_mean&timezone=America%2FSao_Paulo&forecast_days=10')
-		.then(function (r) { return r.json(); })
-		.then(function (j) { pinta(j.daily); try { localStorage.setItem(chave, JSON.stringify({ q: Date.now(), d: j.daily })); } catch (e) {} })
-		.catch(function () { raiz.innerHTML = '<p class="tp__carregando">Não foi possível carregar a previsão agora. Tente de novo em instantes.</p>'; });
+	var tempo = fetch('https://api.open-meteo.com/v1/forecast?latitude=-26.99&longitude=-48.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max&timezone=America%2FSao_Paulo&forecast_days=10').then(function (r) { return r.json(); });
+	var mar = fetch('https://marine-api.open-meteo.com/v1/marine?latitude=-26.95&longitude=-48.4&daily=wave_height_max,wave_direction_dominant&timezone=America%2FSao_Paulo&forecast_days=10').then(function (r) { return r.json(); }).catch(function () { return null; });
+	Promise.all([tempo, mar]).then(function (r) {
+		var D = r[0].daily;
+		if (r[1] && r[1].daily) { D.onda_altura = r[1].daily.wave_height_max; D.onda_direcao = r[1].daily.wave_direction_dominant; }
+		pinta(D);
+		try { localStorage.setItem(chave, JSON.stringify({ q: Date.now(), d: D })); } catch (e) {}
+	}).catch(function () { raiz.innerHTML = '<p class="tp__carregando">Não foi possível carregar a previsão agora. Tente de novo em instantes.</p>'; });
 })();
