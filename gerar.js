@@ -94,8 +94,15 @@ async function tempoHtml() {
   const WP_PUB = process.env.WP_PUBLICO || WP_BASE;
   const CACHE_ADS = path.join(__dirname, 'anuncios-cache.json');
   let ADS = [];
+  const ARQ_ANUNCIOS = path.join(DADOS, 'anuncios.json'), ANUNCIOS_PROPRIOS = fs.existsSync(ARQ_ANUNCIOS);
+  if (ANUNCIOS_PROPRIOS) {
+    const hojeBR = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+    try { ADS = JSON.parse(fs.readFileSync(ARQ_ANUNCIOS, 'utf8')).filter(a => a.ativo !== false && (!a.inicio || a.inicio <= hojeBR) && (!a.fim || a.fim >= hojeBR)); } catch (e) { console.log('aviso: anuncios.json ilegível'); }
+    console.log('anúncios em vigor (painel próprio):', ADS.length);
+  } else {
   try { ADS = (await get(`${WP_BASE}/wp-json/schoje/v1/anuncios`)).anuncios || []; fs.writeFileSync(CACHE_ADS, JSON.stringify(ADS)); console.log('anúncios em vigor:', ADS.length); }
   catch (e) { console.log('aviso: sem anúncios agora (' + e.message + '); usando a cópia anterior'); try { ADS = JSON.parse(fs.readFileSync(CACHE_ADS, 'utf8')); } catch (e2) { ADS = []; } }
+  }
   const rotuloPub = (t = 'Publicidade') => `<span class="pub__rotulo"><span class="pub__hifen" aria-hidden="true">-</span> ${esc(t)} <span class="pub__hifen" aria-hidden="true">-</span></span>`;
   const fixaFaixa = h => !/adsbygoogle/.test(h) ? h : h.replace(/<ins\b[^>]*\badsbygoogle\b[^>]*>/gi, m => {
     if (/data-ad-(format\s*=\s*["']?fluid|layout)/i.test(m)) return m;
@@ -176,7 +183,7 @@ async function tempoHtml() {
 <div class="rodape__col"><h2 class="rodape__titulo">Fale com a gente</h2><ul class="rodape__contato"><li><span>Redação e anúncios</span><a href="mailto:contato@schoje.news">contato@schoje.news</a></li><li><span>WhatsApp de atendimento</span><a href="https://wa.me/5548992088844" target="_blank" rel="noopener">(48) 99208-8844</a></li><li><span>Redação</span>24 horas, pelo WhatsApp e e-mail</li><li><span>Atendimento comercial</span>Segunda a sexta, das 9h às 17h</li><li><span>Endereço</span>Rua Arthur Max Doose, 153, sala 1301<br>Pioneiros – Balneário Camboriú/SC<br>CEP 88331-085</li></ul></div></div>
 <div class="rodape__copy"><div class="container"><p>O Portal SC Hoje é uma publicação da <strong>Mauricio Freitas Comunicação Ltda</strong>.<br>© ${new Date().getFullYear()} SC Hoje. Todos os direitos reservados.<br>A reprodução de qualquer matéria, imagem ou foto é permitida somente com autorização prévia.<br>® SC Hoje é uma marca registrada no INPI.</p><p class="rodape__cookies"><button type="button" class="js-cookies-abrir">Preferências de cookies</button></p></div></div></footer><div id="sc-cookies" class="sc-cookies" role="region" aria-label="Aviso de cookies" hidden><p class="sc-cookies__txt">Usamos cookies para o site funcionar, medir a audiência e exibir anúncios. Os de audiência e de publicidade só são ativados se você aceitar. Veja a <a href="/politica-de-cookies/">Política de cookies</a>.</p><div class="sc-cookies__btns"><button type="button" data-sc-cookies="essenciais">Só os essenciais</button><button type="button" data-sc-cookies="todos">Aceitar todos</button></div></div><script>window.SC_COOKIES={modo:"consentimento",ga:"",ads:"",px:""};</script><script src="/estatico/cookies.js?v=${VER}" defer></script><script src="/estatico/tema.js?v=${VER}" defer></script></body></html>`;
   const novidades = `<section class="news" aria-labelledby="news-t"><div class="container"><div class="news__caixa"><h2 id="news-t" class="news__titulo">Receba o Boletim SC Hoje no seu e-mail</h2><p class="news__sub">Notícias de Balneário Camboriú · Frequência de envio: <strong>diário</strong> · grátis</p><form class="news__form js-news" novalidate><input type="email" name="email" placeholder="Digite seu melhor e-mail" autocomplete="email" required aria-label="Seu e-mail"><button type="submit">Quero receber</button></form><p class="news__msg js-news-msg" role="status" aria-live="polite"></p><p class="news__aviso">Ao se inscrever, você concorda em receber o Boletim SC Hoje e aceita a <a href="/politica-de-privacidade/">Política de privacidade</a>. Você cancela quando quiser.</p></div></div></section>`;
-  const pagina = (titulo, desc, canon, home, corpo, extra, ctx = '') => (cabeca(titulo, desc, canon, extra) + cabecalho(home) + topoPub(ctx) + corpo + novidades + rodape).replace(/<\/body>/i, () => (ctx ? `<script>window.SCHOJE={pub:"${WP_PUB}/wp-json/schoje/v1/pub"};</script>` + ancoraPub(ctx) : '') + '</body>');
+  const pagina = (titulo, desc, canon, home, corpo, extra, ctx = '') => (cabeca(titulo, desc, canon, extra) + cabecalho(home) + topoPub(ctx) + corpo + novidades + rodape).replace(/<\/body>/i, () => (ctx ? `<script>window.SCHOJE={pub:"${ANUNCIOS_PROPRIOS ? '/api/pub' : WP_PUB + '/wp-json/schoje/v1/pub'}"};</script>` + ancoraPub(ctx) : '') + '</body>');
 
   /* ---------- HOME ---------- */
   const usados = new Set(); const marca = xs => xs.forEach(x => usados.add(x.slug));

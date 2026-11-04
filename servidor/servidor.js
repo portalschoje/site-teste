@@ -138,10 +138,16 @@ ${bloco('Testar e-mail', `<form method="post" action="/admin/teste-email"><label
 
 /* ---------- rotas ---------- */
 const redacao = require('./redacao.js')({ DADOS, ler, gravar, esc, C, NOME, json, html });
+const publicador = require('./publicador.js')({ DADOS, ler, gravar, esc, C, NOME, json, html, SITE_URL, ultimas }, redacao.api);
+const anuncios = require('./anuncios.js')({ DADOS, ler, gravar, esc, html }, redacao.api);
+redacao.ligar(publicador, anuncios);
+setInterval(() => publicador.tick().catch(e => console.log('publicador:', e.message)), 60000);
 const ipDe = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 http.createServer(async (req, res) => {
   const u = new URL(req.url, 'http://x'), rota = u.pathname, ip = ipDe(req);
   try {
+    if (rota.startsWith('/api/publicador/whatsapp/') && req.method === 'POST') return await publicador.webhook(req, res, rota);
+    if (rota === '/api/pub' && req.method === 'POST') { const b = await lerCorpo(req); const m = b.match(/name="ids"\r?\n\r?\n([\d,]+)/) || b.match(/(?:^|&)ids=([\d,%C]+)/); if (m && !limite(ip, 2000)) anuncios.conta(decodeURIComponent(m[1])); res.writeHead(204); return res.end(); }
     if (rota === '/api/push/chave' && req.method === 'GET') return json(res, webpush && vapid ? 200 : 503, { chave: vapid ? vapid.publicKey : '' });
     if (rota === '/api/push/inscrever' && req.method === 'POST') {
       if (limite(ip, 30)) return json(res, 429, { ok: false });

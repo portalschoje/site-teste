@@ -38,6 +38,7 @@ WantedBy=multi-user.target
 EOT
 mkdir -p /etc/nginx/snippets
 cat > /etc/nginx/snippets/schoje-api.conf <<'EOT'
+location /api/publicador/ { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; client_max_body_size 25m; }
 location /api/ { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; client_max_body_size 20k; }
 location /admin { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; }
 location /redacao { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; client_max_body_size 20m; }

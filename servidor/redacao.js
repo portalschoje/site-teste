@@ -84,7 +84,7 @@ table.w{width:100%;border-collapse:collapse;background:#fff;border:1px solid #c3
   const MENU = [['/redacao', 'Posts'], ['/redacao/nova', 'Adicionar post'], ['/redacao/categorias', 'Categorias'], ['/redacao/usuarios', 'Usuários'], ['/admin', 'Push e newsletter']];
   const casca = (titulo, u, corpo, msg, ativo, extraHead) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(titulo)} ‹ ${NOME} — Redação</title><style>${CSS}</style>${extraHead || ''}</head><body>
 <div id="barra"><b>${NOME}</b><a href="/" target="_blank">Ver site</a><a href="/redacao/nova">+ Novo</a><span class="esp"></span>${u ? `<a href="/redacao/usuarios">Olá, ${esc(u.nome)}</a><a href="/redacao/sair">Sair</a>` : ''}</div>
-${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Posts</a><div class="sub"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Todos os posts</a><a href="/redacao/nova"${ativo === 'nova' ? ' class="at"' : ''}>Adicionar post</a><a href="/redacao/categorias"${ativo === 'cats' ? ' class="at"' : ''}>Categorias</a></div><a href="/redacao/usuarios"${ativo === 'usr' ? ' class="at"' : ''}>Usuários</a><a href="/admin">Push e newsletter</a></div>` : ''}
+${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Posts</a><div class="sub"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Todos os posts</a><a href="/redacao/nova"${ativo === 'nova' ? ' class="at"' : ''}>Adicionar post</a><a href="/redacao/categorias"${ativo === 'cats' ? ' class="at"' : ''}>Categorias</a></div><a href="/redacao/anuncios"${ativo === 'ads' ? ' class="at"' : ''}>Publicidade</a><a href="/redacao/publicador"${ativo === 'pub' ? ' class="at"' : ''}>Publicador</a><a href="/redacao/usuarios"${ativo === 'usr' ? ' class="at"' : ''}>Usuários</a><a href="/admin">Push e newsletter</a></div>` : ''}
 <div id="conteudo"${u ? '' : ' style="margin-left:0"'}>${msg ? `<div class="msg${/^Erro/.test(msg) ? ' err' : ''}">${esc(msg)}</div>` : ''}${corpo}</div></body></html>`;
   const paginaLogin = msg => casca('Entrar', null, `<div style="width:320px;max-width:100%;margin:60px auto 0"><h1 style="text-align:center;font-size:26px;color:${AZUL};margin:0 0 20px">${NOME}</h1><div class="pb" style="padding:24px"><form method="post" action="/redacao/entrar"><label style="margin-top:0">Nome de usuário</label><input name="usuario" autocomplete="username" required autofocus><label>Senha</label><input name="senha" type="password" autocomplete="current-password" required><p style="margin:18px 0 0"><button class="bt pri" style="float:right">Acessar</button><span style="clear:both;display:block"></span></p></form></div></div>`, msg);
   const fmtData = d => { if (!d) return ''; return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(d)).replace(',', ' às'); };
@@ -205,7 +205,8 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
   const form = async req => Object.fromEntries(new URLSearchParams((await corpoBruto(req, 20000)).toString()));
   const ipDe = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 
-  return async function tratar(req, res, rota, u) {
+  let pub = null, ads = null;
+  async function tratar(req, res, rota, u) {
     if (rota === '/redacao/entrar' && req.method === 'POST') {
       const ip = ipDe(req), t = tentativas.get(ip) || { n: 0, ate: 0 };
       if (t.n >= 8 && Date.now() < t.ate) return html(res, 429, paginaLogin('Erro: muitas tentativas. Espere 15 minutos.'));
@@ -220,6 +221,8 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
     if (rota === '/redacao/sair') { const t = cookie(req).sc_red, s = sessoes(); if (t) { delete s[t]; gravar('sessoes.json', s); } return redir(res, '/redacao', 'sc_red=; Path=/; Max-Age=0'); }
     if (!usr) return rota.startsWith('/redacao/api/') ? json(res, 401, { ok: false, msg: 'Sessão expirada. Entre de novo.' }) : html(res, 200, paginaLogin(''));
 
+    if (ads && (rota === '/redacao/anuncios' || rota.startsWith('/redacao/anuncios/'))) return ads.tratar(req, res, rota, u, usr);
+    if (pub && (rota === '/redacao/publicador' || rota.startsWith('/redacao/publicador/'))) return pub.tratar(req, res, rota, u, usr);
     if (rota === '/redacao' || rota === '/redacao/') return html(res, 200, paginaLista(usr, Object.fromEntries(u.searchParams), ''));
     if (rota === '/redacao/nova') return html(res, 200, paginaEditor(usr, null));
     let m;
@@ -275,5 +278,8 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
       const f = await form(req); gravar('usuarios.json', usuarios().filter(x => x.id !== +f.id || x.id === usr.id)); return html(res, 200, paginaUsuarios(usr, 'Usuário apagado.'));
     }
     return json(res, 404, { ok: false });
-  };
+  }
+  tratar.ligar = (p, a) => { pub = p; ads = a; };
+  tratar.api = { categorias, guardaFoto, proximoId, slugLivre, slugar, salvaPost, lerPost, dimensoes, casca, get indice() { return indice; } };
+  return tratar;
 };
