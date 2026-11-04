@@ -290,3 +290,69 @@
 		}
 	}
 })();
+
+// Página de editoria: "Ver mais notícias" mostra as próximas matérias já carregadas.
+(function () {
+	document.querySelectorAll('.js-mais-cat').forEach(function (btn) {
+		btn.addEventListener('click', function (e) {
+			e.preventDefault();
+			var ocultos = document.querySelectorAll('.cat-item[hidden]');
+			for (var i = 0; i < ocultos.length && i < 10; i++) ocultos[i].removeAttribute('hidden');
+			if (ocultos.length <= 10) btn.remove();
+		});
+	});
+})();
+
+// Botões de compartilhar da matéria.
+(function () {
+	var bs = document.querySelectorAll('.compartilhar__b[data-rede]');
+	if (!bs.length) return;
+	var u = encodeURIComponent(location.href), t = encodeURIComponent(document.title);
+	bs.forEach(function (a) {
+		var r = a.getAttribute('data-rede');
+		if (r === 'whatsapp') a.href = 'https://wa.me/?text=' + t + '%20' + u;
+		if (r === 'facebook') a.href = 'https://www.facebook.com/sharer/sharer.php?u=' + u;
+		if (r === 'x') a.href = 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+		a.target = '_blank';
+	});
+	document.querySelectorAll('.js-copiar-link').forEach(function (b) {
+		b.addEventListener('click', function () {
+			var ok = function () { var s = b.querySelector('span'); var o = s.textContent; s.textContent = 'Link copiado!'; setTimeout(function () { s.textContent = o; }, 2000); };
+			if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(ok, function () {});
+		});
+	});
+})();
+
+// Tempo agora no topo (Open-Meteo, grátis e sem chave). Guarda 30 min no navegador.
+(function () {
+	var caixas = document.querySelectorAll('.js-tempo-topo');
+	if (!caixas.length || !window.fetch) return;
+	var SOL = '<circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>';
+	var NUV = '<path d="M9 20h12a5 5 0 0 0 .6-9.96A7 7 0 0 0 8.1 8.6 5.6 5.6 0 0 0 9 20Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>';
+	var CHU = NUV + '<path d="M11 23l-1 2M16 23l-1 2M21 23l-1 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" transform="translate(0 -1)"/>';
+	var icone = function (c) {
+		if (c === 0) return SOL;
+		if (c <= 2) return '<g transform="translate(-4 -2) scale(.8)">' + SOL + '</g><g transform="translate(6 4) scale(.8)">' + NUV + '</g>';
+		if (c === 3 || (c >= 45 && c <= 48)) return NUV;
+		return CHU;
+	};
+	var pinta = function (d) {
+		caixas.forEach(function (b) {
+			b.querySelector('.tempo-topo__temp').textContent = Math.round(d.t) + '°';
+			b.querySelector('.tempo-topo__ico').innerHTML = icone(d.c);
+			b.hidden = false;
+		});
+	};
+	var chave = 'sc-tempo-topo';
+	try {
+		var g = JSON.parse(localStorage.getItem(chave) || 'null');
+		if (g && Date.now() - g.q < 30 * 60 * 1000) { pinta(g); return; }
+	} catch (e) {}
+	fetch('https://api.open-meteo.com/v1/forecast?latitude=-26.99&longitude=-48.635&current=temperature_2m,weather_code')
+		.then(function (r) { return r.json(); })
+		.then(function (j) {
+			var d = { t: j.current.temperature_2m, c: j.current.weather_code, q: Date.now() };
+			pinta(d);
+			try { localStorage.setItem(chave, JSON.stringify(d)); } catch (e) {}
+		}).catch(function () {});
+})();
