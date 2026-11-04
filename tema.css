@@ -2401,3 +2401,7 @@ body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:104px}
 .autor-perfil__cargo{font:700 12px/1.3 var(--sans);color:var(--cor-destaque);text-transform:uppercase;letter-spacing:.04em}
 .autor-perfil__bio{font:400 14px/1.5 var(--sans);color:#333}
 .autor-perfil__n{font:400 12px/1.4 var(--sans);color:#666}
+
+.autor-perfil__reg{font:400 12px/1.4 var(--sans);color:#555}
+.autor-perfil__in{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border-radius:999px;background:#0a66c2;color:#fff;font:700 11px/1 var(--sans);margin-right:8px;text-decoration:none}
+.autor-perfil__in svg{width:13px;height:13px}
