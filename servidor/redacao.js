@@ -34,7 +34,8 @@ module.exports = function (ctx) {
   const lerPost = id => { try { return JSON.parse(fs.readFileSync(path.join(PASTA_POSTS, +id + '.json'), 'utf8')); } catch (e) { return null; } };
   const salvaPost = p => { const f = path.join(PASTA_POSTS, p.id + '.json'); fs.writeFileSync(f + '.tmp', JSON.stringify(p)); fs.renameSync(f + '.tmp', f); indice.set(p.id, resumo(p)); };
   const proximoId = () => Math.max(900000, ...indice.keys()) + 1;
-  function slugLivre(base, id) { let s = base, n = 2; const usado = x => [...indice.values()].some(p => p.slug === x && p.id !== id); while (usado(s)) s = base + '-' + n++; return s; }
+  const RESERVADOS = new Set(['admin','redacao','api','midia','tag','category','tempo','grupo','sw','feed','wp-admin','wp-json','wp-content','page','author','search','busca','quem-somos','expediente','fale-conosco','anuncie','politica-editorial','politica-de-correcoes','politica-de-privacidade','politica-de-cookies','termos-de-uso']);
+  function slugLivre(base, id) { let s = base, n = 2; if (RESERVADOS.has(s)) s = base = base + '-materia'; const usado = x => [...indice.values()].some(p => p.slug === x && p.id !== id); while (usado(s)) s = base + '-' + n++; return s; }
   function limpaHtml(h) {
     return String(h || '').replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<(meta|link|object|embed|form)\b[^>]*>/gi, '')
       .replace(/\son\w+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, '').replace(/(href|src)\s*=\s*("|')\s*javascript:[^"']*\2/gi, '$1=$2#$2').replace(/\sstyle\s*=\s*("[^"]*"|'[^']*')/gi, '');
@@ -84,7 +85,7 @@ table.w{width:100%;border-collapse:collapse;background:#fff;border:1px solid #c3
   const MENU = [['/redacao', 'Posts'], ['/redacao/nova', 'Adicionar post'], ['/redacao/categorias', 'Categorias'], ['/redacao/usuarios', 'Usuários'], ['/admin', 'Push e newsletter']];
   const casca = (titulo, u, corpo, msg, ativo, extraHead) => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(titulo)} ‹ ${NOME} — Redação</title><style>${CSS}</style>${extraHead || ''}</head><body>
 <div id="barra"><b>${NOME}</b><a href="/" target="_blank">Ver site</a><a href="/redacao/nova">+ Novo</a><span class="esp"></span>${u ? `<a href="/redacao/usuarios">Olá, ${esc(u.nome)}</a><a href="/redacao/sair">Sair</a>` : ''}</div>
-${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Posts</a><div class="sub"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Todos os posts</a><a href="/redacao/nova"${ativo === 'nova' ? ' class="at"' : ''}>Adicionar post</a><a href="/redacao/categorias"${ativo === 'cats' ? ' class="at"' : ''}>Categorias</a></div><a href="/redacao/anuncios"${ativo === 'ads' ? ' class="at"' : ''}>Publicidade</a><a href="/redacao/publicador"${ativo === 'pub' ? ' class="at"' : ''}>Publicador</a><a href="/redacao/usuarios"${ativo === 'usr' ? ' class="at"' : ''}>Usuários</a><a href="/admin">Push e newsletter</a></div>` : ''}
+${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Posts</a><div class="sub"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''}>Todos os posts</a><a href="/redacao/nova"${ativo === 'nova' ? ' class="at"' : ''}>Adicionar post</a><a href="/redacao/categorias"${ativo === 'cats' ? ' class="at"' : ''}>Categorias</a></div><a href="/redacao/importar"${ativo === 'imp' ? ' class="at"' : ''}>Importar do WordPress</a><a href="/redacao/anuncios"${ativo === 'ads' ? ' class="at"' : ''}>Publicidade</a><a href="/redacao/publicador"${ativo === 'pub' ? ' class="at"' : ''}>Publicador</a><a href="/redacao/usuarios"${ativo === 'usr' ? ' class="at"' : ''}>Usuários</a><a href="/admin">Push e newsletter</a></div>` : ''}
 <div id="conteudo"${u ? '' : ' style="margin-left:0"'}>${msg ? `<div class="msg${/^Erro/.test(msg) ? ' err' : ''}">${esc(msg)}</div>` : ''}${corpo}</div></body></html>`;
   const paginaLogin = msg => casca('Entrar', null, `<div style="width:320px;max-width:100%;margin:60px auto 0"><h1 style="text-align:center;font-size:26px;color:${AZUL};margin:0 0 20px">${NOME}</h1><div class="pb" style="padding:24px"><form method="post" action="/redacao/entrar"><label style="margin-top:0">Nome de usuário</label><input name="usuario" autocomplete="username" required autofocus><label>Senha</label><input name="senha" type="password" autocomplete="current-password" required><p style="margin:18px 0 0"><button class="bt pri" style="float:right">Acessar</button><span style="clear:both;display:block"></span></p></form></div></div>`, msg);
   const fmtData = d => { if (!d) return ''; return new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(d)).replace(',', ' às'); };
@@ -128,7 +129,7 @@ ${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''
 <div id="grade"><div>
 <input type="text" id="titulo" placeholder="Adicionar título" value="${esc(p.titulo)}" autocomplete="off">
 <input type="text" id="fina" placeholder="Adicionar subtítulo (linha fina)" value="${esc(p.fina)}" autocomplete="off" style="font-size:16px;min-height:34px;margin:0 0 8px;border-radius:0">
-<div id="perm">${p.slug ? `<b>Link permanente:</b> <a href="/materia/${esc(p.slug)}/" target="_blank" id="plink">${esc('/materia/' + p.slug + '/')}</a> <input id="slugin" value="${esc(p.slug)}"> <button type="button" class="bt peq" id="slugbt">Editar</button>` : '<span class="cap">O link permanente aparece depois de salvar.</span>'}</div>
+<div id="perm">${p.slug ? `<b>Link permanente:</b> <a href="/${esc(p.slug)}/" target="_blank" id="plink">${esc('/' + p.slug + '/')}</a> <input id="slugin" value="${esc(p.slug)}"> <button type="button" class="bt peq" id="slugbt">Editar</button>` : '<span class="cap">O link permanente aparece depois de salvar.</span>'}</div>
 <div class="ab"><button type="button" class="at" id="tvis">Visual</button><button type="button" id="tcod">Código</button></div>
 <div id="ebox"><div id="barra2"><button type="button" data-b="p">Parágrafo</button><button type="button" data-b="h2">Título</button><button type="button" data-b="h3">Subtítulo</button><button type="button" data-c="bold"><b>N</b></button><button type="button" data-c="italic"><i>I</i></button><button type="button" data-c="insertUnorderedList">• Lista</button><button type="button" data-c="insertOrderedList">1. Lista</button><button type="button" data-b="blockquote">❝ Citação</button><button type="button" id="blink">Link</button><button type="button" id="bfoto">Adicionar mídia</button><button type="button" id="bvideo">Vídeo YouTube</button><button type="button" id="bcodigo">Código (Instagram, X…)</button><button type="button" data-c="removeFormat">Limpar</button><button type="button" data-c="undo">↶</button><button type="button" data-c="redo">↷</button></div>
 <div id="ed" contenteditable="true">${p.conteudo || '<p><br></p>'}</div><textarea id="cod" spellcheck="false"></textarea><div id="rod"><span id="palavras">Palavras: 0</span><span id="info">${p.modificado ? 'Última edição em ' + fmtData(p.modificado) : ''}</span></div></div>
@@ -138,7 +139,7 @@ ${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''
 <div>
 <div class="pb"><h2>Destaques da capa</h2><div class="in"><label style="font-weight:400;display:flex;gap:6px;margin:0"><input type="checkbox" id="capa" style="width:auto"${p.capa ? ' checked' : ''}> <b>Incluir nos destaques</b></label><p class="cap" style="margin:8px 0 0">Marcado: a matéria sobe para os destaques da capa. Desmarcado: fica só na editoria dela.</p></div></div>
 <div class="pb"><h2>Publicar</h2><div class="in linhas">
-<p style="display:flex;gap:6px"><button type="button" class="bt" id="rasc" style="display:none">Salvar rascunho</button><a class="bt" id="ver" target="_blank" href="/materia/${esc(p.slug)}/" style="margin-left:auto;display:none">Visualizar alterações</a></p>
+<p style="display:flex;gap:6px"><button type="button" class="bt" id="rasc" style="display:none">Salvar rascunho</button><a class="bt" id="ver" target="_blank" href="/${esc(p.slug)}/" style="margin-left:auto;display:none">Visualizar alterações</a></p>
 <p>📌 Status: <b id="stx">${p.status === 'rascunho' ? 'Rascunho' : 'Publicado'}</b></p>
 <p>👁 Visibilidade: <b>Público</b></p>
 <p>📅 <span id="datax"></span> <a href="#" id="dedit">Editar</a></p><p id="dwrap" style="display:none"><input type="datetime-local" id="data" value="${dtLocal}"></p>
@@ -159,7 +160,7 @@ function botoes(){var pub=STATUS!=='rascunho';$('stx').textContent=pub?'Publicad
 function chips(){var h='';TAGS.forEach(function(t,i){h+='<span><a data-i="'+i+'">✕</a>'+t.replace(/</g,'&lt;')+'</span>'});$('chips').innerHTML=h;$('chips').querySelectorAll('a').forEach(function(a){a.onclick=function(){TAGS.splice(+a.dataset.i,1);chips()}})}chips();
 function addTags(){$('tagin').value.split(',').forEach(function(t){t=t.trim();if(t&&TAGS.indexOf(t)<0)TAGS.push(t)});$('tagin').value='';chips()}
 $('tagbt').onclick=addTags;$('tagin').onkeydown=function(e){if(e.key==='Enter'){e.preventDefault();addTags()}};
-var sb=$('slugbt');if(sb)sb.onclick=function(){var i=$('slugin');if(i.style.display!=='inline-block'){i.style.display='inline-block';$('plink').style.display='none';sb.textContent='OK'}else{SLUG=i.value;$('plink').textContent='/materia/'+SLUG+'/';i.style.display='none';$('plink').style.display='';sb.textContent='Editar'}};
+var sb=$('slugbt');if(sb)sb.onclick=function(){var i=$('slugin');if(i.style.display!=='inline-block'){i.style.display='inline-block';$('plink').style.display='none';sb.textContent='OK'}else{SLUG=i.value;$('plink').textContent='/'+SLUG+'/';i.style.display='none';$('plink').style.display='';sb.textContent='Editar'}};
 $('tvis').onclick=function(){if($('cod').style.display==='block'){ed.innerHTML=$('cod').value}ed.style.display='block';$('cod').style.display='none';$('barra2').style.display='flex';$('tvis').className='at';$('tcod').className=''};
 $('tcod').onclick=function(){$('cod').value=ed.innerHTML.replace(/<\\/(p|h2|h3|ul|ol|li|blockquote|figure)>/g,'</$1>\\n');ed.style.display='none';$('cod').style.display='block';$('barra2').style.display='none';$('tcod').className='at';$('tvis').className=''};
 document.querySelectorAll('#barra2 [data-c]').forEach(function(b){b.onmousedown=function(e){e.preventDefault();document.execCommand(b.dataset.c,false,null)}});
@@ -183,7 +184,7 @@ function dados(st){if($('cod').style.display==='block')ed.innerHTML=$('cod').val
 var salvando=false;
 function salvar(st,auto){if(salvando)return;var d=dados(st);if(!d.titulo){if(!auto)aviso('Escreva o título antes de salvar');return}salvando=true;
  fetch('/redacao/api/salvar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()}).then(function(j){salvando=false;if(!j.ok){aviso(j.msg||'Erro ao salvar');return}
- var novo=!ID;ID=j.id;SLUG=j.slug;STATUS=st;botoes();$('ver').href='/materia/'+SLUG+'/';$('info').textContent=(auto?'Salvo automaticamente':'Salvo')+' às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});if(!auto)aviso(st==='rascunho'?'Rascunho salvo.':'Post publicado/atualizado!');if(novo)location.replace('/redacao/editar/'+ID)}).catch(function(){salvando=false;aviso('Sem conexão. Tente de novo.')})}
+ var novo=!ID;ID=j.id;SLUG=j.slug;STATUS=st;botoes();$('ver').href='/'+SLUG+'/';$('info').textContent=(auto?'Salvo automaticamente':'Salvo')+' às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});if(!auto)aviso(st==='rascunho'?'Rascunho salvo.':'Post publicado/atualizado!');if(novo)location.replace('/redacao/editar/'+ID)}).catch(function(){salvando=false;aviso('Sem conexão. Tente de novo.')})}
 $('publicar').onclick=function(){salvar('publicado',false)};$('rasc').onclick=function(){salvar('rascunho',false)};$('bvolta').onclick=function(e){e.preventDefault();salvar('rascunho',false)};
 setInterval(function(){if(ID)salvar(STATUS,true)},45000);
 var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('Mover esta matéria para a lixeira? (será apagada de vez)'))fetch('/redacao/api/excluir',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:ID})}).then(function(){location='/redacao'})};
@@ -193,7 +194,7 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
 
   function paginaCategorias(u, msg) {
     const cats = categorias();
-    return casca('Categorias', u, `<h1 class="wp">Categorias</h1><div style="display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start" class="cg"><div class="pb"><h2>Adicionar categoria</h2><div class="in"><form method="post" action="/redacao/categorias/nova"><label style="margin-top:0">Nome</label><input name="nome" required><p><button class="bt pri">Adicionar categoria</button></p></form></div></div><table class="w"><tr><th>Nome</th><th>Endereço</th><th></th></tr>${cats.map(c => `<tr><td><b>${esc(c.name)}</b></td><td>/editoria/${esc(c.slug)}/</td><td><form method="post" action="/redacao/categorias/apagar" onsubmit="return confirm('Apagar esta categoria?')"><input type="hidden" name="id" value="${c.id}"><button class="bt peq">Apagar</button></form></td></tr>`).join('')}</table></div><style>@media(max-width:900px){.cg{grid-template-columns:1fr!important}}</style>`, msg, 'cats');
+    return casca('Categorias', u, `<h1 class="wp">Categorias</h1><div style="display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start" class="cg"><div class="pb"><h2>Adicionar categoria</h2><div class="in"><form method="post" action="/redacao/categorias/nova"><label style="margin-top:0">Nome</label><input name="nome" required><p><button class="bt pri">Adicionar categoria</button></p></form></div></div><table class="w"><tr><th>Nome</th><th>Endereço</th><th></th></tr>${cats.map(c => `<tr><td><b>${esc(c.name)}</b></td><td>/category/${esc(c.slug)}/</td><td><form method="post" action="/redacao/categorias/apagar" onsubmit="return confirm('Apagar esta categoria?')"><input type="hidden" name="id" value="${c.id}"><button class="bt peq">Apagar</button></form></td></tr>`).join('')}</table></div><style>@media(max-width:900px){.cg{grid-template-columns:1fr!important}}</style>`, msg, 'cats');
   }
   function paginaUsuarios(u, msg) {
     const us = usuarios();
@@ -205,7 +206,7 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
   const form = async req => Object.fromEntries(new URLSearchParams((await corpoBruto(req, 20000)).toString()));
   const ipDe = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 
-  let pub = null, ads = null;
+  let pub = null, ads = null, imp = null;
   async function tratar(req, res, rota, u) {
     if (rota === '/redacao/entrar' && req.method === 'POST') {
       const ip = ipDe(req), t = tentativas.get(ip) || { n: 0, ate: 0 };
@@ -221,6 +222,7 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
     if (rota === '/redacao/sair') { const t = cookie(req).sc_red, s = sessoes(); if (t) { delete s[t]; gravar('sessoes.json', s); } return redir(res, '/redacao', 'sc_red=; Path=/; Max-Age=0'); }
     if (!usr) return rota.startsWith('/redacao/api/') ? json(res, 401, { ok: false, msg: 'Sessão expirada. Entre de novo.' }) : html(res, 200, paginaLogin(''));
 
+    if (imp && (rota === '/redacao/importar' || rota.startsWith('/redacao/importar/'))) return imp.tratar(req, res, rota, u, usr);
     if (ads && (rota === '/redacao/anuncios' || rota.startsWith('/redacao/anuncios/'))) return ads.tratar(req, res, rota, u, usr);
     if (pub && (rota === '/redacao/publicador' || rota.startsWith('/redacao/publicador/'))) return pub.tratar(req, res, rota, u, usr);
     if (rota === '/redacao' || rota === '/redacao/') return html(res, 200, paginaLista(usr, Object.fromEntries(u.searchParams), ''));
@@ -279,7 +281,7 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
     }
     return json(res, 404, { ok: false });
   }
-  tratar.ligar = (p, a) => { pub = p; ads = a; };
-  tratar.api = { categorias, guardaFoto, proximoId, slugLivre, slugar, salvaPost, lerPost, dimensoes, casca, get indice() { return indice; } };
+  tratar.ligar = (p, a, i) => { pub = p; ads = a; imp = i; };
+  tratar.api = { categorias, guardaFoto, proximoId, slugLivre, slugar, salvaPost, lerPost, dimensoes, casca, limpaHtml, get indice() { return indice; } };
   return tratar;
 };

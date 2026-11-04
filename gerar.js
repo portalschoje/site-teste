@@ -71,7 +71,7 @@ async function tempoHtml() {
   const catsLocais = lerJson('categorias.json', []);
   let catsWP = []; if (!SEM_WP) { try { catsWP = await get(`${API}/categories?per_page=100&hide_empty=true&_fields=id,name,slug,count,parent`); } catch (e) { console.log('aviso: WordPress fora do ar (' + e.message + '); usando só a redação própria'); } }
   const todas = catsWP.map(c => ({ ...c })); for (const c of catsLocais) { const n = locaisTodos.filter(p => p.categoria === c.slug).length; const w = todas.find(x => x.slug === c.slug); if (w) w.count += n; else if (n) todas.push({ id: c.id, name: c.name, slug: c.slug, count: n, parent: 0 }); }
-  const wpForma = (p, cat) => ({ id: p.id, slug: p.slug, date: p.data, modified: p.modificado, link: `https://schoje.news/materia/${p.slug}/`, title: { rendered: esc(p.titulo) }, excerpt: { rendered: `<p>${esc(p.resumo || p.fina)}</p>` }, _sub: p.fina, content: { rendered: p.conteudo }, categories: cat ? [cat.id] : [], _tags: p.tags || [], _capa: !!p.capa, _embedded: { 'wp:featuredmedia': p.destaque && p.destaque.url ? [{ source_url: p.destaque.url, alt_text: p.destaque.alt || '', caption: { rendered: esc(p.destaque.legenda || '') }, media_details: { width: p.destaque.w || undefined, height: p.destaque.h || undefined, sizes: {} } }] : [], author: [{ name: p.autor }] } });
+  const wpForma = (p, cat) => ({ id: p.id, slug: p.slug, date: p.data, modified: p.modificado, link: `https://schoje.news/${p.slug}/`, title: { rendered: esc(p.titulo) }, excerpt: { rendered: `<p>${esc(p.resumo || p.fina)}</p>` }, _sub: p.fina, content: { rendered: p.conteudo }, categories: cat ? [cat.id] : [], _tags: p.tags || [], _capa: !!p.capa, _embedded: { 'wp:featuredmedia': p.destaque && p.destaque.url ? [{ source_url: p.destaque.url, alt_text: p.destaque.alt || '', caption: { rendered: esc(p.destaque.legenda || '') }, media_details: { width: p.destaque.w || undefined, height: p.destaque.h || undefined, sizes: {} } }] : [], author: [{ name: p.autor }] } });
   const cats = todas.filter(c => !['uncategorized', 'sem-categoria'].includes(c.slug) && c.count > 0);
   const porId = new Map(cats.map(c => [c.id, c]));
   const topo = cats.filter(c => !c.parent);
@@ -151,8 +151,8 @@ async function tempoHtml() {
   const textoComPub = (html, ctx) => { const partes = html.split('</p>'); if (partes.length < 4) return html; return partes.map((t, i) => (i < partes.length - 1 ? t + '</p>' : t) + (i === 1 ? pub('pub-materia', ctx, 'pub--materia') : '') + (i === 5 && partes.length > 8 ? pub('pub-materia-3', ctx, 'pub--materia') : '')).join(''); };
 
   /* ---------- helpers de página ---------- */
-  const url = x => `/materia/${x.slug}/`;
-  const urlCat = c => c.tag ? `/tag/${c.slug}/` : `/editoria/${c.slug}/`;
+  const url = x => `/${x.slug}/`;
+  const urlCat = c => c.tag ? `/tag/${c.slug}/` : `/category/${c.slug}/`;
   const slugTag = t => String(t).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
   const nomeMenu = c => NOME_CURTO[c.slug] || c.name;
   const tam = (x, ...ks) => { const z = x.m?.media_details?.sizes || {}; for (const k of ks) { if (k === 'full') return { source_url: x.m?.source_url, width: x.m?.media_details?.width, height: x.m?.media_details?.height }; if (z[k]) return z[k]; } return null; };
@@ -214,13 +214,24 @@ async function tempoHtml() {
   wr('index.html', pagina(`${NOME} — notícias de Balneário Camboriú (teste)`, 'Notícias de Balneário Camboriú', null, true, h, undefined, 'capa'));
 
   /* ---------- MATÉRIAS ---------- */
-  for (const x of L) {
+  // Arquivo: matérias antigas (fora das 60 mais recentes) também ganham página. Só refaz se mudou ou se o gerador foi atualizado.
+  const VERSAO_GERADOR = '0.15.1', ARQ_VERSAO = path.join(OUT, '.versao');
+  const refazTudo = !fs.existsSync(ARQ_VERSAO) || fs.readFileSync(ARQ_VERSAO, 'utf8') !== VERSAO_GERADOR;
+  const slugsL = new Set(L.map(y => y.slug));
+  const extras = locaisTodos.filter(p => !slugsL.has(p.slug)).map(p => info(wpForma(p, porSlug.get(p.categoria)))), extrasSet = new Set(extras);
+  let feitasArquivo = 0;
+  for (const x of [...L, ...extras]) {
+    if (extrasSet.has(x) && !refazTudo) { try { if (fs.statSync(path.join(OUT, `${x.slug}/index.html`)).mtimeMs > Date.parse(x.p.modified || x.date)) continue; } catch (e) {} }
+    if (extrasSet.has(x)) feitasArquivo++;
     const rel = (x.cat ? (await doCat(x.cat)) : L).filter(y => y.slug !== x.slug).slice(0, 6);
     const migalhas = `<nav class="migalhas" aria-label="Você está em"><a href="/">Página inicial</a>${x.cat ? `<span aria-hidden="true">›</span><a href="${urlCat(x.cat)}">${esc(x.cat.name)}</a>` : ''}</nav>`;
     const leg = txt(x.m?.caption?.rendered || '');
     const corpo = `<main id="conteudo" class="container materia"><article class="materia__artigo"><header class="materia__topo">${migalhas}${seloPub(x.cat, true)}${x.cat ? `<a class="chapeu" href="${urlCat(x.cat)}">${esc(x.cat.name)}</a>` : ''}<h1 class="materia__titulo">${esc(x.tit)}</h1>${x.sub ? `<p class="linha-fina">${esc(x.sub)}</p>` : ''}<div class="autor-linha"><span class="autor-linha__foto" aria-hidden="true"><span>${esc(x.autor.charAt(0).toUpperCase())}</span></span><div><p class="autor-linha__nome">Por ${esc(x.autor)}</p><p class="autor-linha__data"><time datetime="${esc(x.data)}">${dataAutor(x.data)}</time></p></div></div><div class="compartilhar" aria-label="Compartilhar"><a class="compartilhar__b compartilhar__b--whats" data-rede="whatsapp" href="${WHATS}" rel="noopener">${icone('whatsapp')}<span>Enviar no WhatsApp</span></a><a class="compartilhar__b" data-rede="facebook" href="${REDES.facebook}" rel="noopener">${icone('facebook')}<span>Facebook</span></a><a class="compartilhar__b" data-rede="x" href="${REDES.x}" rel="noopener">${icone('x')}<span>X</span></a><button type="button" class="compartilhar__b js-copiar-link"><span>Copiar link</span></button></div>${botaoGoogle()}</header>${x.m ? `<figure class="materia__img">${imagem(x, 'materia', true)}${leg ? `<figcaption>${esc(leg)}</figcaption>` : ''}</figure>` : ''}<div class="materia__texto">${textoComPub(limpa(x.p.content?.rendered), 'materias')}</div>${x.tags.length ? `<p class="tags"><span>Tags:</span> ${x.tags.map(t => `<a href="/tag/${slugTag(t)}/">${esc(t)}</a>`).join('')}</p>` : ''}${pub('pub-materia-2', 'materias', 'pub--materia')}<footer class="materia__fim">${botaoGoogle()}</footer>${rel.length ? `<section class="leia-tambem" aria-labelledby="titulo-mais"><h2 class="bloco-titulo" id="titulo-mais">Mais notícias${x.cat ? ' de ' + esc(x.cat.name) : ''}</h2><div class="leia-tambem__lista">${rel.map(y => card(y, 'lista')).join('')}</div></section>` : ''}</article><aside class="lateral" aria-label="Coluna lateral">${lat1('materias')}${maisLidas(L.filter(y => y.slug !== x.slug).slice(0, 5), true)}${lat2('materias')}</aside></main>`;
-    wr(`materia/${x.slug}/index.html`, pagina(`${x.tit} — ${NOME}`, x.res.slice(0, 160), x.p.link, false, corpo + `<a class="whats-flutuante" href="${WHATS}" target="_blank" rel="noopener" aria-label="Receba notícias no WhatsApp">${icone('whatsapp')}<span>Receba notícias no WhatsApp</span></a>`, `<meta property="og:title" content="${esc(x.tit)}">${x.m?.source_url ? `<meta property="og:image" content="${esc(abs(x.m.source_url))}">` : ''}`, 'materias'));
+    wr(`${x.slug}/index.html`, pagina(`${x.tit} — ${NOME}`, x.res.slice(0, 160), x.p.link, false, corpo + `<a class="whats-flutuante" href="${WHATS}" target="_blank" rel="noopener" aria-label="Receba notícias no WhatsApp">${icone('whatsapp')}<span>Receba notícias no WhatsApp</span></a>`, `<meta property="og:title" content="${esc(x.tit)}">${x.m?.source_url ? `<meta property="og:image" content="${esc(abs(x.m.source_url))}">` : ''}`, 'materias'));
   }
+
+  if (feitasArquivo) console.log('matérias do arquivo geradas:', feitasArquivo);
+  fs.writeFileSync(ARQ_VERSAO, VERSAO_GERADOR);
 
   /* ---------- EDITORIAS ---------- */
   const tagCats = []; { const nomes = new Map(); for (const p of locaisTodos) for (const t of (p.tags || [])) { const sl = slugTag(t); if (sl && !nomes.has(sl)) nomes.set(sl, t); }
@@ -232,7 +243,7 @@ async function tempoHtml() {
     const itens = resto.map((x, i) => `<article class="cat-item"${i >= 12 ? ' hidden' : ''}><a class="cat-item__img" href="${url(x)}" tabindex="-1" aria-hidden="true">${imagem(x, 'medio')}</a><div class="cat-item__texto">${chapeu(x)}<h2 class="cat-item__titulo"><a href="${url(x)}">${esc(x.tit)}</a></h2>${x.res ? `<p class="cat-item__fina">${esc(palavras(x.res, 24))}</p>` : ''}</div></article>`).join('');
     const redesCat = `<ul class="cat-redes"><li><a href="${WHATS}" target="_blank" rel="noopener">${icone('whatsapp')}WhatsApp</a></li><li><a href="${REDES.facebook}" target="_blank" rel="noopener">${icone('facebook')}Facebook</a></li><li><a href="${REDES.instagram}" target="_blank" rel="noopener">${icone('instagram')}Instagram</a></li><li><a href="${REDES.x}" target="_blank" rel="noopener">${icone('x')}X</a></li></ul>`;
     const corpo = `<main id="conteudo" class="cat"><div class="container"><nav class="migalhas arquivo__migalhas" aria-label="Você está em"><a href="/">Página inicial</a><span aria-hidden="true">›</span><a href="${urlCat(c)}">${esc(c.name)}</a></nav><div class="cat__grade"><div class="cat__esq"><header class="cat__faixa"><h1>${esc(c.name)}</h1>${seloPub(c)}</header>${m ? `<article class="cat-hero"><a class="cat-hero__img" href="${url(m)}" tabindex="-1" aria-hidden="true">${imagem(m, 'grande', true)}</a><div class="cat-hero__texto">${chapeu(m)}<h2 class="cat-hero__titulo"><a href="${url(m)}">${esc(m.tit)}</a></h2>${m.res ? `<p class="cat-hero__fina">${esc(palavras(m.res, 30))}</p>` : ''}</div></article>` : ''}<div class="cat__lista">${itens || '<p class="arquivo__vazio">Nenhuma notícia encontrada.</p>'}${resto.length > 12 ? '<a class="cat__mais js-mais-cat" href="#">Ver mais notícias</a>' : ''}</div></div><aside class="cat__lado" aria-label="Coluna lateral">${lat1('editorias')}<section class="cat__redes" aria-label="Siga nossas redes"><h2 class="cat__lat">Siga nossas redes</h2>${redesCat}</section>${lat2('editorias')}<section aria-label="Últimas notícias"><h2 class="cat__lat">Últimas notícias</h2><ul class="cat-ultimas">${ultimas}</ul></section></aside></div></div></main>`;
-    wr(`${c.tag ? 'tag' : 'editoria'}/${c.slug}/index.html`, pagina(`${c.name} — ${NOME}`, 'Notícias de ' + c.name, null, false, corpo, undefined, 'editorias'));
+    wr(`${c.tag ? 'tag' : 'category'}/${c.slug}/index.html`, pagina(`${c.name} — ${NOME}`, 'Notícias de ' + c.name, null, false, corpo, undefined, 'editorias'));
   }
 
 

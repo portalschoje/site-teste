@@ -140,7 +140,8 @@ ${bloco('Testar e-mail', `<form method="post" action="/admin/teste-email"><label
 const redacao = require('./redacao.js')({ DADOS, ler, gravar, esc, C, NOME, json, html });
 const publicador = require('./publicador.js')({ DADOS, ler, gravar, esc, C, NOME, json, html, SITE_URL, ultimas }, redacao.api);
 const anuncios = require('./anuncios.js')({ DADOS, ler, gravar, esc, html }, redacao.api);
-redacao.ligar(publicador, anuncios);
+const importador = require('./importador.js')({ DADOS, ler, gravar, esc, html }, redacao.api);
+redacao.ligar(publicador, anuncios, importador);
 setInterval(() => publicador.tick().catch(e => console.log('publicador:', e.message)), 60000);
 const ipDe = req => (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
 http.createServer(async (req, res) => {
