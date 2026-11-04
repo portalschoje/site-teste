@@ -38,9 +38,8 @@
 .qs2-cab{display:flex;align-items:center;gap:16px;margin-bottom:24px}
 .qs2-cab h2{font:800 17px/1.2 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--azul);white-space:nowrap}
 .qs2-cab:after{content:"";flex:1;height:1px;background:#c9d3ec}
-.qs2-galeria{display:grid;grid-template-columns:2fr 1fr 1fr;grid-auto-rows:230px;gap:14px}
+.qs2-galeria{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:340px;gap:14px}
 .qs2-galeria figure{margin:0;position:relative;overflow:hidden;border-radius:12px;background:#dfe5f1}
-.qs2-galeria figure:first-child{grid-row:1/3}
 .qs2-galeria img{width:100%;height:100%;object-fit:cover;display:block}
 .qs2-galeria figcaption{position:absolute;left:0;right:0;bottom:0;padding:28px 14px 10px;background:linear-gradient(transparent,rgba(0,0,0,.65));color:#fff;font:600 13px/1.3 var(--sans)}
 .qs2-aviso{margin-top:10px;font:400 12px/1.4 var(--sans);color:#7a8299}
@@ -63,7 +62,7 @@
 .qs2-redes{display:flex;gap:10px;margin-top:6px}
 .qs2-redes a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:var(--azul);color:#fff}
 .qs2-redes .icone{width:20px;height:20px}
-.qs2-faixa{position:relative;min-height:260px;background:#0b1b4d url("/estatico/inst/assets/img/quem-somos/redacao.webp?v=0.10.0") 50% 28%/cover no-repeat;display:flex;align-items:flex-end}
+.qs2-faixa{position:relative;min-height:0;padding:36px 0;background:linear-gradient(120deg,#0b1b4d,#0034fc);display:flex;align-items:center}
 .qs2-faixa__caixa{background:rgba(11,27,77,.94);color:#fff;padding:24px 28px;display:grid;grid-template-columns:52px minmax(0,1fr);gap:18px;align-items:center;max-width:760px}
 .qs2-faixa__caixa svg{width:48px;height:48px;color:#fff}
 .qs2-faixa h2{font:800 21px/1.25 var(--sans);margin-bottom:6px}
@@ -74,12 +73,11 @@
 .qs2-cta p{font:400 16px/1.5 var(--sans);color:#dfe6ff}
 @media (max-width:1100px){.qs2-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.qs2-tres{grid-template-columns:1fr 1fr}.qs2-tres>div:first-child{grid-column:1/-1}}
 @media (max-width:860px){
-.qs2-galeria{grid-auto-rows:180px}
+.qs2-galeria{grid-auto-rows:240px}
 .qs2-heroi__dentro{grid-template-columns:minmax(0,1fr)}
 .qs2-heroi__foto img{-webkit-mask-image:none;mask-image:none}
 .qs2-numeros ul{grid-template-columns:repeat(2,1fr)}
-.qs2-galeria{grid-template-columns:1fr 1fr}
-.qs2-galeria figure:first-child{grid-column:1/-1;grid-row:auto}
+.qs2-galeria{grid-template-columns:1fr}
 .qs2-cards{grid-template-columns:repeat(2,minmax(0,1fr))}
 .qs2-tres{grid-template-columns:minmax(0,1fr)}
 }
@@ -157,12 +155,10 @@
 
 	<section class="qs2-sec" aria-labelledby="qs2-galeria">
 		<div class="container">
-			<div class="qs2-cab"><h2 id="qs2-galeria">Na redação e na rua</h2></div>
+			<div class="qs2-cab"><h2 id="qs2-galeria">Nosso trabalho</h2></div>
 			<div class="qs2-galeria">
-				<figure><img src="/estatico/inst/assets/img/quem-somos/redacao.webp?v=0.10.0" width="1400" height="788" alt="Redação do SC Hoje com computadores, telões e vista para a orla de Balneário Camboriú" loading="lazy" decoding="async"><figcaption>A redação: notícia de Balneário Camboriú o dia inteiro</figcaption></figure>
 				<figure><img src="/estatico/inst/assets/img/quem-somos/jornalista-editando.webp?v=0.10.0" width="1200" height="800" alt="Jornalista do SC Hoje editando uma matéria no computador" loading="lazy" decoding="async"><figcaption>Apuração e edição</figcaption></figure>
-				<figure><img src="/estatico/inst/assets/img/quem-somos/reporter-orla.webp?v=0.10.0" width="1200" height="800" alt="Repórter do SC Hoje gravando na orla de Balneário Camboriú" loading="lazy" decoding="async"><figcaption>Reportagem na orla</figcaption></figure>
-				<figure style="grid-column:2/4"><img src="/estatico/inst/assets/img/quem-somos/edicao-video.webp?v=0.10.0" width="1200" height="800" alt="Editor do SC Hoje montando um vídeo com imagens de Balneário Camboriú" loading="lazy" decoding="async"><figcaption>Vídeos para o site e as redes</figcaption></figure>
+				<figure><img src="/estatico/inst/assets/img/quem-somos/edicao-video.webp?v=0.10.0" width="1200" height="800" alt="Editor do SC Hoje montando um vídeo com imagens de Balneário Camboriú" loading="lazy" decoding="async"><figcaption>Vídeos para o site e as redes</figcaption></figure>
 			</div>
 			<p class="qs2-aviso">Imagens ilustrativas.</p>
 		</div>
