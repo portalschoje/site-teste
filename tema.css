@@ -2370,3 +2370,6 @@ body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:104px}
 .push-aviso--on{transform:translate(-50%,0)}
 .push-aviso__bt{justify-content:center}
 .push-aviso__bt button{flex:1}
+
+/* 0.12 — tags da matéria */
+.tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0;font:600 14px var(--sans)}.tags span{color:#666}.tags a{background:#eef2ff;color:var(--cor-destaque);padding:5px 12px;border-radius:16px;text-decoration:none}.tags a:hover{background:var(--cor-destaque);color:#fff}
