@@ -2195,3 +2195,8 @@ body.com-ancora .whats-flutuante{bottom:110px}
 .audio-noticia__titulo{margin:0 0 6px}
 .gaveta__discover{margin:0 0 18px}
 }
+
+/* ajuste 0.5: manchete da home com a medida do Metrópoles (desktop) */
+@media (min-width:1024px){
+.capa .manchete__titulo{font-size:48px;line-height:1.1;letter-spacing:-.035em}
+}

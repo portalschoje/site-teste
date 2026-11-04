@@ -96,12 +96,12 @@ const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="con
   const capa = L.slice(0, 6); marca(capa);
   const [manchete0, lado] = capa;
   /* TESTE DE MEDIDA: manchete igual à do Metrópoles, só na home */
-  const manchete = manchete0 && { ...manchete0, tit: 'Senado aprova PEC da Segurança e adia análise sobre redução da maioridade. Veja vídeo', res: 'Texto amplia atuação da União no combate ao crime organizado, endurece tratamento para facções e é uma vitória para Lula' };
+  const manchete = manchete0 && { ...manchete0, teste: true, tit: 'Senado aprova PEC da Segurança e adia análise da redução da maioridade penal. Veja vídeo', res: 'Texto amplia atuação da União no combate ao crime organizado, endurece tratamento para facções e é uma vitória para Lula' };
   const grade = capa.slice(2);
   const reserva = L.filter(x => !usados.has(x.slug));
   while (grade.length < 12 && reserva.length) { const x = reserva.shift(); grade.push(x); usados.add(x.slug); }
   let h = '<main id="conteudo" class="capa">';
-  if (manchete) h += `<section class="container manchete" aria-label="Manchete"><a class="manchete__img" href="${url(manchete)}" tabindex="-1" aria-hidden="true">${imagem(manchete, 'grande', true)}</a><div class="manchete__texto">${chapeu(manchete)}<h2 class="manchete__titulo"><a href="${url(manchete)}">${esc(manchete.tit)}</a></h2>${manchete.res ? `<p class="manchete__fina">${esc(palavras(manchete.res, 30))}</p>` : ''}</div>${lado ? `<div class="manchete__lado">${card(lado, 'vertical')}</div>` : ''}</section>`;
+  if (manchete) h += `<section class="container manchete" aria-label="Manchete"><a class="manchete__img" href="${url(manchete)}" tabindex="-1" aria-hidden="true">${manchete.teste ? '<img src="/estatico/img/teste-manchete.jpg" width="1200" height="800" alt="Plenário do Senado" fetchpriority="high">' : imagem(manchete, 'grande', true)}</a><div class="manchete__texto">${chapeu(manchete)}<h2 class="manchete__titulo"><a href="${url(manchete)}">${esc(manchete.tit)}</a></h2>${manchete.res ? `<p class="manchete__fina">${esc(palavras(manchete.res, 30))}</p>` : ''}</div>${lado ? `<div class="manchete__lado">${card(lado, 'vertical')}</div>` : ''}</section>`;
   const lidas = L.filter(x => !capa.includes(x)).slice(0, 5);
   h += `<div class="container capa-grade"><section class="grade-cards" aria-label="Destaques">${grade.map(x => `<div class="grade-item">${card(x, 'lista')}</div>`).join('')}</section><aside class="lateral" aria-label="Coluna lateral">${maisLidas(lidas, false)}</aside></div>`;
   const blocos = [menuCats[0], menuCats[2], menuCats[1], menuCats[4]].filter(Boolean);
