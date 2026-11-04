@@ -174,7 +174,7 @@ async function tempoHtml() {
   wr('robots.txt', 'User-agent: *\nDisallow: /\n');
   fs.cpSync(path.join(__dirname, 'estatico'), path.join(OUT, 'estatico'), { recursive: true });
   // Arquivos soltos na pasta principal do repositório valem mais que os da pasta estatico (facilita o envio pelo GitHub).
-  for (const f of ['tema.css', 'tema.js']) if (fs.existsSync(path.join(__dirname, f))) fs.copyFileSync(path.join(__dirname, f), path.join(OUT, 'estatico', f));
+  for (const f of ['tema.css', 'tema.js', 'cookies.js']) if (fs.existsSync(path.join(__dirname, f))) fs.copyFileSync(path.join(__dirname, f), path.join(OUT, 'estatico', f));
   const swf = [path.join(__dirname, 'sw.js'), path.join(__dirname, 'estatico', 'sw.js')].find(f => fs.existsSync(f));
   if (swf) fs.copyFileSync(swf, path.join(OUT, 'sw.js'));
   console.log('ok', L.length, 'matérias,', gavetaCats.length, 'editorias');

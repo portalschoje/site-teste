@@ -42,9 +42,9 @@ location /api/ { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-
 location /admin { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; }
 location = /sw.js { add_header Cache-Control "no-cache"; }
 EOT
-for f in $(grep -rl "server_name.*schoje.online" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null); do
+for f in $(grep -Rl "server_name.*schoje.online" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null); do
   if ! grep -q "snippets/schoje-api.conf" "$f"; then
-    sed -i '/server_name.*schoje.online/a\    include /etc/nginx/snippets/schoje-api.conf;' "$f"
+    sed -i --follow-symlinks '/server_name.*schoje.online/a\    include /etc/nginx/snippets/schoje-api.conf;' "$f"
   fi
 done
 nginx -t

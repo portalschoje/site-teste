@@ -111,7 +111,8 @@ function gerarSite() {
   if (gerando) return Promise.resolve(); gerando = true;
   return new Promise(ok => execFile(process.execPath, [path.join(__dirname, '..', 'gerar.js')], { timeout: 240000, env: Object.assign({}, process.env, { OUT: SITE_DIR }) }, (er, so, se) => { gerando = false; if (er) console.log('gerar erro:', (se || er.message).slice(0, 200)); ok(); }));
 }
-async function ciclo() { if (+C('GERAR_CADA_MIN') !== 0) await gerarSite(); await verificarNovas(); await verificarBoletim(); }
+const GERAR_MIN = C('GERAR_CADA_MIN') === '' ? 5 : +C('GERAR_CADA_MIN');
+async function ciclo() { if (GERAR_MIN !== 0) await gerarSite(); await verificarNovas(); await verificarBoletim(); }
 
 /* ---------- painel ---------- */
 function autorizado(req) {
@@ -186,4 +187,4 @@ http.createServer(async (req, res) => {
 }).listen(PORTA, '127.0.0.1', () => console.log('Servidor SC Hoje na porta', PORTA));
 
 setTimeout(ciclo, 8000);
-setInterval(ciclo, Math.max(1, +C('GERAR_CADA_MIN') || 5) * 60000);
+setInterval(ciclo, Math.max(1, GERAR_MIN || 5) * 60000);
