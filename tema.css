@@ -2343,13 +2343,13 @@ a.tempo-topo{text-decoration:none}
 .news__aviso{margin:10px 0 0;font:400 11.5px/1.45 var(--sans);color:#dbe4ff}
 .news__aviso a{color:#fff;text-decoration:underline}
 @media (max-width:520px){.news__form{flex-direction:column}.news__form button{width:100%}}
-.push-aviso{position:fixed;z-index:70;left:50%;bottom:16px;width:min(560px,calc(100% - 24px));transform:translate(-50%,140%);background:#fff;color:#1d1d1f;border-radius:14px;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.28);display:flex;align-items:center;gap:16px;transition:transform .35s ease}
+.push-aviso{position:fixed;z-index:70;left:50%;top:12px;width:min(560px,calc(100% - 24px));transform:translate(-50%,-150%);background:#fff;color:#1d1d1f;border-radius:14px;padding:16px 18px;box-shadow:0 10px 40px rgba(0,0,0,.28);display:flex;align-items:center;gap:16px;transition:transform .35s ease}
 .push-aviso--on{transform:translate(-50%,0)}
 .push-aviso__txt{margin:0;display:flex;flex-direction:column;gap:3px;flex:1;font:400 14px/1.35 var(--sans)}
-.push-aviso__txt strong{font:800 16px/1.25 var(--sans)}
+.push-aviso__txt strong{font:600 16px/1.3 var(--sans)}
 .push-aviso__txt span{color:#555}
 .push-aviso__bt{display:flex;gap:8px;flex-shrink:0}
-.push-aviso button{height:42px;padding:0 16px;border-radius:22px;font:800 14px var(--sans);cursor:pointer;border:2px solid var(--cor-destaque)}
+.push-aviso button{height:42px;padding:0 18px;border-radius:22px;font:600 14px var(--sans);cursor:pointer;border:2px solid var(--cor-destaque)}
 .push-aviso__nao{background:#fff;color:var(--cor-destaque)}
 .push-aviso__sim{background:var(--cor-destaque);color:#fff}
 @media (max-width:520px){.push-aviso{flex-direction:column;align-items:stretch;gap:12px}.push-aviso__bt button{flex:1}}
@@ -2357,3 +2357,8 @@ a.tempo-topo{text-decoration:none}
 /* 0.10.2 — botão do WhatsApp sobe enquanto o aviso de cookies está aberto */
 body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:104px}
 @media (max-width:640px){body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:190px}}
+
+/* 0.10.4 — textos menos pesados nos avisos */
+.sc-cookies__btns button{font-weight:600}
+.push-aviso__txt{font-weight:400}
+@media (min-width:900px){.push-aviso{top:176px;left:auto;right:24px;width:560px;transform:translate(0,-30px);opacity:0;transition:transform .35s ease,opacity .35s ease}.push-aviso--on{transform:none;opacity:1}}

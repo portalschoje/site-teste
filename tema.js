@@ -459,7 +459,7 @@
 	function caixa(reg) {
 		var d = document.createElement('div');
 		d.className = 'push-aviso'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Receber notificações');
-		d.innerHTML = '<p class="push-aviso__txt"><strong>Quer receber as notícias de Balneário Camboriú?</strong><span>Avisamos você quando acontecer algo importante.</span></p><div class="push-aviso__bt"><button type="button" class="push-aviso__nao">Agora não</button><button type="button" class="push-aviso__sim">Quero receber</button></div>';
+		d.innerHTML = '<p class="push-aviso__txt"><strong>Quer receber as notícias de Balneário Camboriú?</strong><span>Avisamos você quando acontecer algo importante.</span></p><div class="push-aviso__bt"><button type="button" class="push-aviso__sim">Quero receber</button><button type="button" class="push-aviso__nao">Agora não</button></div>';
 		document.body.appendChild(d);
 		setTimeout(function () { d.classList.add('push-aviso--on'); }, 30);
 		function fecha() { d.classList.remove('push-aviso--on'); setTimeout(function () { d.remove(); }, 400); }
