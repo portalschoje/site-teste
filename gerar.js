@@ -94,7 +94,10 @@ const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="con
   /* ---------- HOME ---------- */
   const usados = new Set(); const marca = xs => xs.forEach(x => usados.add(x.slug));
   const capa = L.slice(0, 6); marca(capa);
-  const [manchete, lado] = capa; const grade = capa.slice(2);
+  const [manchete0, lado] = capa;
+  /* TESTE DE MEDIDA: manchete igual à do Metrópoles, só na home */
+  const manchete = manchete0 && { ...manchete0, tit: 'Senado aprova PEC da Segurança e adia análise sobre redução da maioridade. Veja vídeo', res: 'Texto amplia atuação da União no combate ao crime organizado, endurece tratamento para facções e é uma vitória para Lula' };
+  const grade = capa.slice(2);
   const reserva = L.filter(x => !usados.has(x.slug));
   while (grade.length < 12 && reserva.length) { const x = reserva.shift(); grade.push(x); usados.add(x.slug); }
   let h = '<main id="conteudo" class="capa">';
