@@ -2198,8 +2198,22 @@ body.com-ancora .whats-flutuante{bottom:110px}
 
 /* ajuste 0.5: manchete da home com a medida do Metrópoles (desktop) */
 @media (min-width:1024px){
-.capa .manchete{margin-top:125px!important;grid-template-columns:477fr 495fr 308fr;column-gap:0}
+.capa .manchete{margin-top:121px!important;grid-template-columns:477fr 495fr 308fr;column-gap:0}
 .capa .manchete__texto{padding:0 31px 0 13px}
 .capa .manchete__titulo{font-size:48px;line-height:1.1;letter-spacing:-.03em}
 .capa .manchete__lado{padding-left:0}
+.capa .manchete__lado .card__titulo{font-size:27px;line-height:1.11;letter-spacing:-.03em}
 }
+
+/* 0.6: bloco da previsão do tempo (coluna lateral) */
+.tempo{margin:24px 0 0;padding:16px;border:1px solid var(--borda);background:#f4f7fd}
+.tempo .bloco-titulo{margin:0 0 12px}
+.tempo__agora{display:flex;align-items:center;gap:14px}
+.tempo__agora b{font:900 44px/1 var(--serif);color:var(--titulo)}
+.tempo__agora span{font:700 15px/1.25 "Roboto Menu",Roboto,Arial,sans-serif}
+.tempo__agora small{display:block;margin-top:3px;font-weight:400;font-size:13px;color:var(--texto-2)}
+.tempo__dias{list-style:none;margin:14px 0 0;padding:0;border-top:1px solid var(--borda)}
+.tempo__dias li{display:grid;grid-template-columns:44px 1fr auto;gap:8px;padding:8px 0;border-bottom:1px solid var(--borda);font:400 14px/1.2 "Roboto Menu",Roboto,Arial,sans-serif}
+.tempo__dias li span:first-child{text-transform:capitalize}
+.tempo__dias li:last-child{border-bottom:0;padding-bottom:0}
+.tempo__dias b{font-weight:700}

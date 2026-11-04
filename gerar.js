@@ -43,6 +43,21 @@ const botaoGoogle = () => `<a class="btn-google" href="https://profile.google.co
 const redes = () => `<ul class="redes">${Object.entries(REDES).map(([k, u]) => `<li><a href="${u}" target="_blank" rel="noopener" aria-label="${k}">${icone(k)}</a></li>`).join('')}</ul>`;
 const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="container topo__barra"><div class="topo__esq"><button type="button" class="btn-icone js-abrir-gaveta" aria-controls="gaveta" aria-expanded="false" aria-label="Menu">${icone('menu')}<span>Menu</span></button><button type="button" class="btn-icone btn-notif js-notificacoes" aria-label="Ative nossas notificações">${icone('sino')}<span>Ative nossas notificações</span></button></div><${tag} class="topo__logo">${logo()}</${tag}><div class="topo__dir"><img class="selo" src="/estatico/img/selo-18-anos.webp" width="126" height="120" alt="${NOME} — 18 anos" decoding="async"><button type="button" class="btn-icone js-abrir-busca" aria-controls="busca-tela" aria-expanded="false" aria-label="Busca">${icone('busca')}<span>Busca</span></button></div></div>`; };
 
+
+/* ---------- previsão do tempo (Open-Meteo, grátis e sem chave) ---------- */
+const WMO = c => c === 0 ? 'Céu limpo' : c <= 2 ? 'Parcialmente nublado' : c === 3 ? 'Nublado' : c <= 48 ? 'Neblina' : c <= 57 ? 'Garoa' : c <= 67 ? 'Chuva' : c <= 77 ? 'Neve' : c <= 82 ? 'Pancadas de chuva' : c >= 95 ? 'Trovoadas' : 'Instável';
+async function tempoHtml() {
+  try {
+    let j;
+    if (process.env.TEMPO_TESTE) j = { current: { temperature_2m: 24.3, weather_code: 2 }, daily: { time: ['2026-11-03', '2026-11-04', '2026-11-05', '2026-11-06'], weather_code: [2, 63, 80, 0], temperature_2m_max: [27.1, 25.2, 24.4, 28.0], temperature_2m_min: [19.2, 18.5, 17.9, 18.8] } };
+    else { const r = await fetch('https://api.open-meteo.com/v1/forecast?latitude=-26.99&longitude=-48.635&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=America%2FSao_Paulo&forecast_days=4', { headers: { 'user-agent': 'schoje-teste/2' } }); if (!r.ok) throw new Error(r.status); j = await r.json(); }
+    const g = n => Math.round(n) + '°';
+    const dia = d => new Intl.DateTimeFormat('pt-BR', { weekday: 'short', timeZone: 'UTC' }).format(new Date(d + 'T12:00:00Z')).replace('.', '');
+    const D = j.daily;
+    return `<section class="tempo" aria-label="Previsão do tempo"><h2 class="bloco-titulo">Tempo em Balneário Camboriú</h2><div class="tempo__agora"><b>${g(j.current.temperature_2m)}</b><span>${WMO(j.current.weather_code)}<small>Máx ${g(D.temperature_2m_max[0])} · Mín ${g(D.temperature_2m_min[0])}</small></span></div><ul class="tempo__dias">${[1, 2, 3].map(i => `<li><span>${dia(D.time[i])}</span><span>${WMO(D.weather_code[i])}</span><b>${g(D.temperature_2m_max[i])} / ${g(D.temperature_2m_min[i])}</b></li>`).join('')}</ul></section>`;
+  } catch (e) { console.log('aviso: sem previsão do tempo (' + e.message + ')'); return ''; }
+}
+
 (async () => {
   /* ---------- dados ---------- */
   const todas = await get(`${API}/categories?per_page=100&hide_empty=true&_fields=id,name,slug,count,parent`);
@@ -104,7 +119,7 @@ const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="con
   let h = '<main id="conteudo" class="capa">';
   if (manchete) h += `<section class="container manchete" aria-label="Manchete"><a class="manchete__img" href="${url(manchete)}" tabindex="-1" aria-hidden="true">${manchete.teste ? '<img src="/estatico/img/teste-manchete.jpg" width="1200" height="800" alt="Plenário do Senado" fetchpriority="high">' : imagem(manchete, 'grande', true)}</a><div class="manchete__texto">${chapeu(manchete)}<h2 class="manchete__titulo"><a href="${url(manchete)}">${esc(manchete.tit)}</a></h2>${manchete.res ? `<p class="manchete__fina">${esc(palavras(manchete.res, 30))}</p>` : ''}</div>${lado ? `<div class="manchete__lado">${card(lado, 'vertical')}</div>` : ''}</section>`;
   const lidas = L.filter(x => !capa.includes(x)).slice(0, 5);
-  h += `<div class="container capa-grade"><section class="grade-cards" aria-label="Destaques">${grade.map(x => `<div class="grade-item">${card(x, 'lista')}</div>`).join('')}</section><aside class="lateral" aria-label="Coluna lateral">${maisLidas(lidas, false)}</aside></div>`;
+  h += `<div class="container capa-grade"><section class="grade-cards" aria-label="Destaques">${grade.map(x => `<div class="grade-item">${card(x, 'lista')}</div>`).join('')}</section><aside class="lateral" aria-label="Coluna lateral">${maisLidas(lidas, false)}${await tempoHtml()}</aside></div>`;
   const blocos = [menuCats[0], menuCats[2], menuCats[1], menuCats[4]].filter(Boolean);
   for (const c of blocos) {
     const lista = (await doCat(c)).filter(x => x !== manchete && x !== lado).slice(0, 9); if (lista.length < 4) continue;
