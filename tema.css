@@ -2364,3 +2364,9 @@ body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:104px}
 /* 0.10.5 — aviso de notificação centralizado, colado no topo da tela */
 .push-aviso{top:0;left:50%;right:auto;width:min(620px,calc(100% - 16px));border-radius:0 0 14px 14px;transform:translate(-50%,-110%);opacity:1}
 .push-aviso--on{transform:translate(-50%,0)}
+
+/* 0.10.6 — aviso estreito, em coluna, centralizado */
+.push-aviso{left:50%;right:auto;top:0;width:min(440px,calc(100% - 16px));flex-direction:column;align-items:stretch;gap:12px;padding:16px 18px 18px;border-radius:0 0 14px 14px;text-align:center;transform:translate(-50%,-110%)}
+.push-aviso--on{transform:translate(-50%,0)}
+.push-aviso__bt{justify-content:center}
+.push-aviso__bt button{flex:1}
