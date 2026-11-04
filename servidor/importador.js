@@ -1,4 +1,5 @@
 'use strict';
+const autorPadrao = () => { try { const u = JSON.parse(require('fs').readFileSync(require('path').join(__dirname, 'dados', 'usuarios.json'), 'utf8')); return (u[0] && u[0].nome) || 'Redação'; } catch (e) { return 'Redação'; } };
 // SC Hoje — importador das matérias e fotos do WordPress antigo para o sistema próprio.
 // Lê pela API pública do WordPress (a mesma que o site já usa), copia as fotos para a nossa mídia
 // e salva cada matéria igual às do editor novo. Pode parar e continuar: o que já veio é pulado.
@@ -67,7 +68,7 @@ module.exports = function (ctx, api) {
             const idsCat = (p.categories || []).filter(id => mapa.has(id)); const cat = mapa.get(idsCat[0]) || cats[0];
             let destaque = { url: '', alt: '', legenda: '', w: 0, h: 0 };
             if (m && m.source_url) { const f = await foto(m.source_url, B); if (f) destaque = { url: f.url, w: f.w, h: f.h, alt: texto(m.alt_text || p.title.rendered).slice(0, 200), legenda: texto(m.caption && m.caption.rendered).slice(0, 300) }; }
-            const post = { id: p.id, slug: p.slug, titulo: texto(p.title.rendered).slice(0, 200), fina: '', resumo: texto(p.excerpt && p.excerpt.rendered).slice(0, 400), conteudo: await conteudo(p.content.rendered, B), categoria: cat.slug, autor: texto(((emb.author || [])[0] || {}).name) || 'Redação', tags: tags.slice(0, 15), capa: false, status: 'publicado', data: new Date(p.date_gmt + 'Z').toISOString(), criado: new Date(p.date_gmt + 'Z').toISOString(), modificado: new Date((p.modified_gmt || p.date_gmt) + 'Z').toISOString(), destaque, editor: 'importado', caminho: new URL(p.link).pathname };
+            const post = { id: p.id, slug: p.slug, titulo: texto(p.title.rendered).slice(0, 200), fina: '', resumo: texto(p.excerpt && p.excerpt.rendered).slice(0, 400), conteudo: await conteudo(p.content.rendered, B), categoria: cat.slug, autor: texto(((emb.author || [])[0] || {}).name) || autorPadrao(), tags: tags.slice(0, 15), capa: false, status: 'publicado', data: new Date(p.date_gmt + 'Z').toISOString(), criado: new Date(p.date_gmt + 'Z').toISOString(), modificado: new Date((p.modified_gmt || p.date_gmt) + 'Z').toISOString(), destaque, editor: 'importado', caminho: new URL(p.link).pathname };
             api.salvaPost(post); est.feitos++; est.ultimo = post.titulo;
           } catch (e) { est.erros++; est.ultimo = 'erro: ' + e.message; }
           if ((est.feitos + est.pulados + est.erros) % 10 === 0) salvaEst();

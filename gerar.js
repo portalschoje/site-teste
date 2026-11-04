@@ -59,7 +59,7 @@ const logo = (fundo = 'claro') => { const b = fundo === 'escuro' ? 'logo-branco'
 const semAcento = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 const FOTO_AUTOR = new Map(); try { for (const u of JSON.parse(fs.readFileSync(path.join(DADOS, 'usuarios.json'), 'utf8'))) if (u.foto) FOTO_AUTOR.set(semAcento(u.nome), u.foto); } catch (e) {}
 const BIO_AUTOR = new Map(); try { for (const u of JSON.parse(fs.readFileSync(path.join(DADOS, 'usuarios.json'), 'utf8'))) if (u.bio) BIO_AUTOR.set(semAcento(u.nome), u.bio); } catch (e) {}
-const AUTOR_INFO = new Map(); try { for (const u of JSON.parse(fs.readFileSync(path.join(DADOS, 'usuarios.json'), 'utf8'))) AUTOR_INFO.set(semAcento(u.nome), { slug: u.slugAutor || '', cargo: u.cargo || '', registro: u.registro || '', linkedin: u.linkedin || '' }); } catch (e) {}
+const AUTOR_INFO = new Map(); try { for (const u of JSON.parse(fs.readFileSync(path.join(DADOS, 'usuarios.json'), 'utf8'))) AUTOR_INFO.set(semAcento(u.nome), { slug: u.slugAutor || semAcento(u.nome).toLowerCase().replace(/[^a-z0-9]/g, ''), cargo: u.cargo || '', registro: u.registro || '', linkedin: u.linkedin || '' }); } catch (e) {}
 const botaoFonte = () => `<a class="btn-fonte" href="https://www.google.com/preferences/source?q=schoje.news" target="_blank" rel="noopener"><svg class="btn-fonte__g" viewBox="0 0 48 48" width="28" height="28" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5Z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.2 5.5-4.7 7.2l7.6 5.9c4.4-4.1 6.9-10.1 6.9-17.6Z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 0 1 0-9.4l-7.9-6.1a24 24 0 0 0 0 21.6l7.9-6.1Z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48Z"/></svg><span>Adicione o SC Hoje como fonte preferencial no Google</span></a>`;
 const botaoGoogle = () => `<a class="btn-google" href="https://profile.google.com/@schoje.news" target="_blank" rel="noopener"><span>Siga no</span><img class="btn-google__icone" src="/estatico/img/google-discover.png" width="24" height="24" alt="" loading="lazy"><span>Google Discover</span></a>`;
 const redes = () => `<ul class="redes">${Object.entries(REDES).map(([k, u]) => `<li><a href="${u}" target="_blank" rel="noopener" aria-label="${k}">${icone(k)}</a></li>`).join('')}</ul>`;
@@ -243,7 +243,7 @@ async function tempoHtml() {
   };
   /* ---------- MATÉRIAS ---------- */
   // Arquivo: matérias antigas (fora das 60 mais recentes) também ganham página. Só refaz se mudou ou se o gerador foi atualizado.
-  const VERSAO_GERADOR = '0.18.2', ARQ_VERSAO = path.join(OUT, '.versao');
+  const VERSAO_GERADOR = '0.18.3', ARQ_VERSAO = path.join(OUT, '.versao');
   const refazTudo = !fs.existsSync(ARQ_VERSAO) || fs.readFileSync(ARQ_VERSAO, 'utf8') !== VERSAO_GERADOR;
   const slugsL = new Set(L.map(y => y.slug));
   const extras = locaisTodos.filter(p => !slugsL.has(p.slug)).map(p => info(wpForma(p, porSlug.get(p.categoria)))), extrasSet = new Set(extras);
