@@ -44,6 +44,8 @@ location /admin { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded
 location /redacao { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; client_max_body_size 20m; }
 location /midia/ { alias /opt/site-teste/servidor/dados/midia/; expires 30d; add_header Cache-Control "public"; }
 location = /sw.js { add_header Cache-Control "no-cache"; }
+location = /feed/ { default_type application/rss+xml; try_files /feed/index.xml =404; }
+location = /feed { return 301 /feed/; }
 EOT
 for f in $(grep -Rl "server_name.*schoje.online" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null); do
   if ! grep -q "snippets/schoje-api.conf" "$f"; then
