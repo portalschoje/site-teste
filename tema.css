@@ -2373,3 +2373,31 @@ body:has(.sc-cookies:not([hidden])) .whats-flutuante{bottom:104px}
 
 /* 0.12 — tags da matéria */
 .tags{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:22px 0;font:600 14px var(--sans)}.tags span{color:#666}.tags a{background:#eef2ff;color:var(--cor-destaque);padding:5px 12px;border-radius:16px;text-decoration:none}.tags a:hover{background:var(--cor-destaque);color:#fff}
+
+/* 0.18.0: topo da matéria no estilo Metrópoles (autor + logo, botões em pílula, fonte preferencial) */
+.autor-linha{display:flex;align-items:center;gap:10px;margin:0 0 14px}
+.autor-linha__txt{min-width:0;flex:1}
+.autor-linha__nome{font:700 14px/1.3 var(--sans);color:var(--cor-destaque)}
+.autor-linha__logo{margin-left:auto;flex:none;height:24px;width:auto;display:block}
+.compartilhar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.compartilhar__b{height:38px;padding:0 16px;border-radius:999px;color:#fff;font:700 13px/1 var(--sans);gap:8px}
+.compartilhar__b svg{width:18px;height:18px}
+.compartilhar__b--whats{background:#1fa855}
+.compartilhar__b--fb{background:#1877f2}
+.compartilhar__b--x{background:#000}
+.compartilhar__b--in{background:#0a66c2}
+.compartilhar__b:hover{filter:brightness(1.1);color:#fff}
+.btn-fonte{display:inline-flex;align-items:center;gap:12px;max-width:100%;margin:0 0 20px;padding:9px 20px 9px 12px;border:1px solid #9aa0a6;border-radius:999px;background:#fff;color:#202124;font:600 13px/1.25 var(--sans);text-decoration:none}
+.btn-fonte:hover{border-color:#5f6368}
+.btn-fonte__g{flex:none}
+@media (max-width:480px){.compartilhar__b{padding:0 13px}.autor-linha__logo{height:20px}}
+
+/* 0.18.1: página do autor */
+.autor-linha__nome a{color:var(--cor-destaque);text-decoration:none}
+.autor-linha__nome a:hover{text-decoration:underline}
+.autor-perfil{display:flex;gap:16px;align-items:center;margin:0 0 20px;padding:16px;background:#f4f6fb;border-radius:10px}
+.autor-perfil__foto{width:96px;height:96px;border-radius:50%;object-fit:cover;flex:none;border:3px solid var(--cor-destaque)}
+.autor-perfil p{margin:0 0 4px}
+.autor-perfil__cargo{font:700 12px/1.3 var(--sans);color:var(--cor-destaque);text-transform:uppercase;letter-spacing:.04em}
+.autor-perfil__bio{font:400 14px/1.5 var(--sans);color:#333}
+.autor-perfil__n{font:400 12px/1.4 var(--sans);color:#666}

@@ -313,6 +313,7 @@
 		if (r === 'whatsapp') a.href = 'https://wa.me/?text=' + t + '%20' + u;
 		if (r === 'facebook') a.href = 'https://www.facebook.com/sharer/sharer.php?u=' + u;
 		if (r === 'x') a.href = 'https://twitter.com/intent/tweet?text=' + t + '&url=' + u;
+		if (r === 'linkedin') a.href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + u;
 		a.target = '_blank';
 	});
 	document.querySelectorAll('.js-copiar-link').forEach(function (b) {
