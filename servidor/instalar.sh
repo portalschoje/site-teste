@@ -40,8 +40,6 @@ mkdir -p /etc/nginx/snippets
 cat > /etc/nginx/snippets/schoje-api.conf <<'EOT'
 location /api/ { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; client_max_body_size 20k; }
 location /admin { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; }
-location /redacao { proxy_pass http://127.0.0.1:3100; proxy_set_header X-Forwarded-For $remote_addr; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; client_max_body_size 20m; }
-location /midia/ { alias /opt/site-teste/servidor/dados/midia/; expires 30d; add_header Cache-Control "public"; }
 location = /sw.js { add_header Cache-Control "no-cache"; }
 EOT
 for f in $(grep -Rl "server_name.*schoje.online" /etc/nginx/sites-enabled /etc/nginx/conf.d 2>/dev/null); do
