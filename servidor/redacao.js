@@ -106,7 +106,7 @@ ${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''
 
   function paginaEditor(u, p) {
     const cats = categorias(), novo = !p;
-    p = p || { id: 0, slug: '', titulo: '', fina: '', conteudo: '', categoria: cats[0] ? cats[0].slug : '', destaque: { url: '', alt: '', legenda: '', w: 0, h: 0 }, autor: u.nome, status: 'rascunho', data: '', tags: [], capa: false };
+    p = p || { id: 0, slug: '', titulo: '', fina: '', resumo: '', conteudo: '', categoria: cats[0] ? cats[0].slug : '', destaque: { url: '', alt: '', legenda: '', w: 0, h: 0 }, autor: u.nome, status: 'rascunho', data: '', tags: [], capa: false };
     const dtLocal = p.data ? new Date(new Date(p.data).getTime() - 3 * 3600e3).toISOString().slice(0, 16) : '';
     const EXTRA = `<style>
 #grade{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:20px;align-items:start}@media(max-width:900px){#grade{grid-template-columns:1fr}}
@@ -127,12 +127,13 @@ ${u ? `<div id="menu"><a href="/redacao"${ativo === 'posts' ? ' class="at"' : ''
     const corpo = `<h1 class="wp">${novo ? 'Adicionar post' : 'Editar post'} ${novo ? '' : '<a class="bt peq" href="/redacao/nova">Adicionar post</a>'}</h1>
 <div id="grade"><div>
 <input type="text" id="titulo" placeholder="Adicionar título" value="${esc(p.titulo)}" autocomplete="off">
+<input type="text" id="fina" placeholder="Adicionar subtítulo (linha fina)" value="${esc(p.fina)}" autocomplete="off" style="font-size:16px;min-height:34px;margin:0 0 8px;border-radius:0">
 <div id="perm">${p.slug ? `<b>Link permanente:</b> <a href="/materia/${esc(p.slug)}/" target="_blank" id="plink">${esc('/materia/' + p.slug + '/')}</a> <input id="slugin" value="${esc(p.slug)}"> <button type="button" class="bt peq" id="slugbt">Editar</button>` : '<span class="cap">O link permanente aparece depois de salvar.</span>'}</div>
 <div class="ab"><button type="button" class="at" id="tvis">Visual</button><button type="button" id="tcod">Código</button></div>
 <div id="ebox"><div id="barra2"><button type="button" data-b="p">Parágrafo</button><button type="button" data-b="h2">Título</button><button type="button" data-b="h3">Subtítulo</button><button type="button" data-c="bold"><b>N</b></button><button type="button" data-c="italic"><i>I</i></button><button type="button" data-c="insertUnorderedList">• Lista</button><button type="button" data-c="insertOrderedList">1. Lista</button><button type="button" data-b="blockquote">❝ Citação</button><button type="button" id="blink">Link</button><button type="button" id="bfoto">Adicionar mídia</button><button type="button" id="bvideo">Vídeo YouTube</button><button type="button" id="bcodigo">Código (Instagram, X…)</button><button type="button" data-c="removeFormat">Limpar</button><button type="button" data-c="undo">↶</button><button type="button" data-c="redo">↷</button></div>
 <div id="ed" contenteditable="true">${p.conteudo || '<p><br></p>'}</div><textarea id="cod" spellcheck="false"></textarea><div id="rod"><span id="palavras">Palavras: 0</span><span id="info">${p.modificado ? 'Última edição em ' + fmtData(p.modificado) : ''}</span></div></div>
 <input type="file" id="arq" accept="image/*" hidden>
-<div class="pb" style="margin-top:20px"><h2>Resumo</h2><div class="in"><textarea id="fina" rows="2">${esc(p.fina)}</textarea><p class="cap" style="margin:6px 0 0">Resumos são pequenas descrições da matéria. Aparecem abaixo do título (linha fina) e nas buscas.</p></div></div>
+<div class="pb" style="margin-top:20px"><h2>Resumo</h2><div class="in"><textarea id="resumo" rows="2">${esc(p.resumo || '')}</textarea><p class="cap" style="margin:6px 0 0">Resumos são pequenas descrições da matéria, usadas nas chamadas e no Google. Em branco, vale o subtítulo.</p></div></div>
 </div>
 <div>
 <div class="pb"><h2>Destaques da capa</h2><div class="in"><label style="font-weight:400;display:flex;gap:6px;margin:0"><input type="checkbox" id="capa" style="width:auto"${p.capa ? ' checked' : ''}> <b>Incluir nos destaques</b></label><p class="cap" style="margin:8px 0 0">Marcado: a matéria sobe para os destaques da capa. Desmarcado: fica só na editoria dela.</p></div></div>
@@ -178,7 +179,7 @@ ed.addEventListener('paste',function(e){var h=(e.clipboardData||window.clipboard
  d.querySelectorAll('*').forEach(function(n){var t=n.tagName.toLowerCase();if(!/^(p|br|strong|b|em|i|a|h2|h3|ul|ol|li|blockquote|img|figure|figcaption)$/.test(t)){if(/^(h1|h4|h5|h6)$/.test(t)){var h2=document.createElement('h2');h2.innerHTML=n.innerHTML;n.replaceWith(h2)}else{n.replaceWith.apply(n,[].slice.call(n.childNodes))}return}
  [].slice.call(n.attributes).forEach(function(a){if(!(t==='a'&&a.name==='href')&&!(t==='img'&&/^(src|alt|width|height)$/.test(a.name)))n.removeAttribute(a.name)})});
  document.execCommand('insertHTML',false,d.innerHTML)});
-function dados(st){if($('cod').style.display==='block')ed.innerHTML=$('cod').value;var c=document.querySelector('input[name=cat]:checked');addTags();return{id:ID,slug:SLUG,titulo:$('titulo').value.trim(),fina:$('fina').value.trim(),conteudo:ed.innerHTML,categoria:c?c.value:'',autor:$('autor').value.trim(),tags:TAGS.join(','),capa:$('capa').checked,status:st,data:$('data').value,destaque:{url:DEST.url,w:DEST.w,h:DEST.h,alt:$('dalt').value.trim(),legenda:$('dleg').value.trim()}}}
+function dados(st){if($('cod').style.display==='block')ed.innerHTML=$('cod').value;var c=document.querySelector('input[name=cat]:checked');addTags();return{id:ID,slug:SLUG,titulo:$('titulo').value.trim(),fina:$('fina').value.trim(),resumo:$('resumo').value.trim(),conteudo:ed.innerHTML,categoria:c?c.value:'',autor:$('autor').value.trim(),tags:TAGS.join(','),capa:$('capa').checked,status:st,data:$('data').value,destaque:{url:DEST.url,w:DEST.w,h:DEST.h,alt:$('dalt').value.trim(),legenda:$('dleg').value.trim()}}}
 var salvando=false;
 function salvar(st,auto){if(salvando)return;var d=dados(st);if(!d.titulo){if(!auto)aviso('Escreva o título antes de salvar');return}salvando=true;
  fetch('/redacao/api/salvar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)}).then(function(r){return r.json()}).then(function(j){salvando=false;if(!j.ok){aviso(j.msg||'Erro ao salvar');return}
@@ -241,7 +242,7 @@ var ex=$('excluir');if(ex)ex.onclick=function(e){e.preventDefault();if(confirm('
       if (!titulo) return json(res, 400, { ok: false, msg: 'Escreva o título.' });
       const slug = antigo && antigo.slug ? (d.slug && slugar(d.slug) !== antigo.slug ? slugLivre(slugar(d.slug), id) : antigo.slug) : slugLivre(slugar(titulo), id);
       const dst = d.destaque || {};
-      const p = { id, slug, titulo, fina: String(d.fina || '').trim().slice(0, 400), conteudo: limpaHtml(d.conteudo), categoria: d.categoria, autor: String(d.autor || usr.nome).trim().slice(0, 80), tags: [...new Set(String(d.tags || '').split(',').map(t => t.trim().replace(/^#/, '').slice(0, 40)).filter(Boolean))].slice(0, 15), capa: !!d.capa, status, data, criado: antigo ? antigo.criado : agora, modificado: agora, destaque: { url: /^\/midia\/[\w\/.-]+$|^https:\/\//.test(dst.url || '') ? dst.url : '', alt: String(dst.alt || '').slice(0, 200), legenda: String(dst.legenda || '').slice(0, 300), w: +dst.w || 0, h: +dst.h || 0 }, editor: usr.usuario };
+      const p = { id, slug, titulo, fina: String(d.fina || '').trim().slice(0, 400), resumo: String(d.resumo || '').trim().slice(0, 400), conteudo: limpaHtml(d.conteudo), categoria: d.categoria, autor: String(d.autor || usr.nome).trim().slice(0, 80), tags: [...new Set(String(d.tags || '').split(',').map(t => t.trim().replace(/^#/, '').slice(0, 40)).filter(Boolean))].slice(0, 15), capa: !!d.capa, status, data, criado: antigo ? antigo.criado : agora, modificado: agora, destaque: { url: /^\/midia\/[\w\/.-]+$|^https:\/\//.test(dst.url || '') ? dst.url : '', alt: String(dst.alt || '').slice(0, 200), legenda: String(dst.legenda || '').slice(0, 300), w: +dst.w || 0, h: +dst.h || 0 }, editor: usr.usuario };
       salvaPost(p); return json(res, 200, { ok: true, id, slug });
     }
     if (rota === '/redacao/api/excluir' && req.method === 'POST') {

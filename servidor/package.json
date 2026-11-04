@@ -4,5 +4,10 @@
   "private": true,
   "description": "Web push e newsletter do SC Hoje (sem WordPress)",
   "main": "servidor.js",
-  "dependencies": { "web-push": "3.6.7" }
+  "dependencies": {
+    "web-push": "3.6.7"
+  },
+  "optionalDependencies": {
+    "sharp": "0.33.5"
+  }
 }
