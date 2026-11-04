@@ -2296,3 +2296,30 @@ body.com-ancora .whats-flutuante{bottom:110px}
 .tempo-topo__temp{font-weight:700;letter-spacing:-.02em;font-size:26px}
 .tempo-topo__cidade{font-weight:700;letter-spacing:0}
 @media (min-width:768px){.tempo-topo__temp{font-size:30px}}
+
+/* 0.8: página da previsão do tempo (cartões por dia) */
+a.tempo-topo{text-decoration:none}
+.tp{display:grid;gap:14px;margin:0 0 14px}
+.tp__carregando{margin:20px 0;font:400 15px/1.4 "Open Sans","Segoe UI",Arial,sans-serif;color:var(--texto-2)}
+.tp__fonte{margin:0 0 30px;font:400 12px/1.4 "Open Sans","Segoe UI",Arial,sans-serif;color:#777}
+.tp-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 12px;align-items:center;background:#0f2433;color:#fff;padding:22px 20px;font-family:"Open Sans","Segoe UI",Arial,sans-serif}
+.tp-card__dia span{display:block;font:300 16px/1.3 "Open Sans","Segoe UI",Arial,sans-serif;color:#e6eef5}
+.tp-card__dia h2{margin:2px 0 0;font:700 21px/1.2 "Open Sans","Segoe UI",Arial,sans-serif;color:#fff}
+.tp-card__temps{display:flex;align-items:baseline;gap:12px;margin:14px 0 0}
+.tp-card__temps b{font:700 50px/1 "Open Sans","Segoe UI",Arial,sans-serif;letter-spacing:-.02em}
+.tp-card__temps i{font:300 44px/1 "Open Sans","Segoe UI",Arial,sans-serif;font-style:normal;color:#dfe8ef}
+.tp-card__ico{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tp-card__ico svg{width:96px;height:88px}
+.tp-card__ico span{display:none;font:600 12px/1 "Open Sans","Segoe UI",Arial,sans-serif;color:#9fb4c4}
+.tp-card__dados{grid-column:1/-1;list-style:none;margin:2px 0 0;padding:14px 0 0;border-top:1px solid rgba(255,255,255,.12);display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tp-card__dados li{display:flex;align-items:center;gap:8px;color:#9fb4c4}
+.tp-card__dados span{display:block}
+.tp-card__dados small{display:block;font:600 11px/1.2 "Open Sans","Segoe UI",Arial,sans-serif;color:#9fb4c4}
+.tp-card__dados b{display:block;font:700 13px/1.25 "Open Sans","Segoe UI",Arial,sans-serif;color:#fff}
+@media (min-width:768px){
+.tp-card{grid-template-columns:minmax(0,1fr) 150px minmax(0,1fr);padding:26px 28px}
+.tp-card__dia h2{font-size:24px}
+.tp-card__temps b{font-size:60px}.tp-card__temps i{font-size:54px}
+.tp-card__ico svg{width:128px;height:117px}
+.tp-card__dados{grid-column:auto;border-top:0;padding:0;margin:0;grid-template-columns:1fr;gap:14px}
+}

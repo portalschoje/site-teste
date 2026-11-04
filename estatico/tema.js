@@ -356,3 +356,58 @@
 			try { localStorage.setItem(chave, JSON.stringify(d)); } catch (e) {}
 		}).catch(function () {});
 })();
+
+
+// Página "Previsão do tempo": um cartão por dia, 10 dias (Open-Meteo).
+(function () {
+	var raiz = document.querySelector('.js-tempo-pagina');
+	if (!raiz || !window.fetch) return;
+	var B = 'fill="#fff"';
+	var NUVEM = '<path ' + B + ' d="M34 78h52a22 22 0 0 0 3-43.8A30 30 0 0 0 31 30a24 24 0 0 0 3 48Z"/><path fill="#cfe3f2" d="M34 78h52a22 22 0 0 0 5-.6c-4 6-9 8.6-16 8.6H34a24 24 0 0 1-12-3.2c3.6 1.8 7.6 3.2 12 3.2Z" opacity=".0"/>';
+	var SOL = '<circle cx="60" cy="48" r="20" fill="#ffc933"/><g stroke="#ffc933" stroke-width="5" stroke-linecap="round"><path d="M60 14v8M60 74v8M26 48h8M86 48h8M36 24l6 6M78 66l6 6M84 24l-6 6M42 66l-6 6"/></g>';
+	var GOTAS = '<g fill="#9fd0f0"><path d="M38 90c-3 4-3 8 0 8s3-4 0-8Z"/><path d="M58 92c-3 4-3 8 0 8s3-4 0-8Z"/><path d="M78 90c-3 4-3 8 0 8s3-4 0-8Z"/></g>';
+	var RAIO = '<path fill="#ffc933" d="M64 70 52 90h10l-4 14 16-22H64l6-12Z"/>';
+	var NEV = '<g stroke="#cfe3f2" stroke-width="4" stroke-linecap="round"><path d="M30 92h60M38 100h44"/></g>';
+	function icone(c) {
+		var g = function (x) { return '<svg viewBox="0 0 120 110" width="120" height="110" aria-hidden="true" focusable="false">' + x + '</svg>'; };
+		if (c === 0) return g(SOL);
+		if (c <= 2) return g('<g transform="translate(-14 -10) scale(.8)">' + SOL + '</g><g transform="translate(6 10)">' + NUVEM + '</g>');
+		if (c === 3) return g(NUVEM);
+		if (c <= 48) return g(NUVEM + NEV);
+		if (c >= 95) return g(NUVEM + RAIO);
+		return g(NUVEM + GOTAS);
+	}
+	function texto(c) {
+		if (c === 0) return 'Céu limpo'; if (c <= 2) return 'Parcialmente nublado'; if (c === 3) return 'Nublado';
+		if (c <= 48) return 'Neblina'; if (c <= 57) return 'Garoa'; if (c <= 67) return 'Chuva';
+		if (c <= 82) return 'Pancadas de chuva'; if (c >= 95) return 'Trovoadas'; return 'Instável';
+	}
+	function cap(s) { return s.replace(/(^|-|\s)([a-zà-ú])/g, function (m, a, b) { return a + b.toUpperCase(); }); }
+	function rotulo(iso, i) {
+		var d = new Date(iso + 'T12:00:00');
+		var dia = cap(new Intl.DateTimeFormat('pt-BR', { weekday: 'long' }).format(d)) + ', ' + d.getDate();
+		return i === 0 ? 'Hoje, ' + dia : i === 1 ? 'Amanhã, ' + dia : dia;
+	}
+	var n = function (v, c) { return (v === null || v === undefined || isNaN(v)) ? '—' : Number(v).toFixed(c).replace('.', ','); };
+	var IP = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M4 17a9 9 0 1 1 16 0M12 13l4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+	var IC = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 12a9 9 0 0 1 18 0H3Zm9 0v7a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+	var IV = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M3 9h11a3 3 0 1 0-3-3M3 15h15a3 3 0 1 1-3 3M3 12h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+	function cartao(D, i) {
+		return '<article class="tp-card"><div class="tp-card__dia"><span>Previsão do tempo para</span><h2>' + rotulo(D.time[i], i) + '</h2><p class="tp-card__temps"><b>' + Math.round(D.temperature_2m_max[i]) + 'º</b><i>' + Math.round(D.temperature_2m_min[i]) + 'º</i></p></div>' +
+			'<div class="tp-card__ico" title="' + texto(D.weather_code[i]) + '">' + icone(D.weather_code[i]) + '<span>' + texto(D.weather_code[i]) + '</span></div>' +
+			'<ul class="tp-card__dados"><li>' + IP + '<span><small>Pressão</small><b>' + n(D.surface_pressure_mean && D.surface_pressure_mean[i], 0) + ' hPa</b></span></li>' +
+			'<li>' + IC + '<span><small>Precipitação</small><b>' + n(D.precipitation_sum[i], 1) + ' mm</b></span></li>' +
+			'<li>' + IV + '<span><small>Ventos de até</small><b>' + n(D.wind_speed_10m_max[i], 0) + ' km/h</b></span></li></ul></article>';
+	}
+	function pinta(D) {
+		var h = '';
+		for (var i = 0; i < D.time.length; i++) h += cartao(D, i);
+		raiz.innerHTML = h;
+	}
+	var chave = 'sc-tempo-10d';
+	try { var g = JSON.parse(localStorage.getItem(chave) || 'null'); if (g && Date.now() - g.q < 30 * 60 * 1000) { pinta(g.d); return; } } catch (e) {}
+	fetch('https://api.open-meteo.com/v1/forecast?latitude=-26.99&longitude=-48.635&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max,surface_pressure_mean&timezone=America%2FSao_Paulo&forecast_days=10')
+		.then(function (r) { return r.json(); })
+		.then(function (j) { pinta(j.daily); try { localStorage.setItem(chave, JSON.stringify({ q: Date.now(), d: j.daily })); } catch (e) {} })
+		.catch(function () { raiz.innerHTML = '<p class="tp__carregando">Não foi possível carregar a previsão agora. Tente de novo em instantes.</p>'; });
+})();
