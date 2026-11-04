@@ -1,0 +1,8 @@
+{
+  "name": "sc-hoje-servidor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Web push e newsletter do SC Hoje (sem WordPress)",
+  "main": "servidor.js",
+  "dependencies": { "web-push": "3.6.7" }
+}
