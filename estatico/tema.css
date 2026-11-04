@@ -2198,5 +2198,8 @@ body.com-ancora .whats-flutuante{bottom:110px}
 
 /* ajuste 0.5: manchete da home com a medida do Metrópoles (desktop) */
 @media (min-width:1024px){
-.capa .manchete__titulo{font-size:48px;line-height:1.1;letter-spacing:-.035em}
+.capa .manchete{margin-top:125px!important;grid-template-columns:477fr 495fr 308fr;column-gap:0}
+.capa .manchete__texto{padding:0 31px 0 13px}
+.capa .manchete__titulo{font-size:48px;line-height:1.1;letter-spacing:-.03em}
+.capa .manchete__lado{padding-left:0}
 }

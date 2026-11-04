@@ -2,6 +2,7 @@
 // Usa o MESMO layout/CSS do tema oficial (versão mobile first). Uso: node gerar.js
 // Variáveis: API, OUT, SITE
 const fs = require('fs'), path = require('path');
+const VER = Date.now().toString(36);
 const API = process.env.API || 'https://schoje.news/wp-json/wp/v2';
 const OUT = process.env.OUT || '/var/www/teste';
 const NOME = 'SC Hoje';
@@ -77,7 +78,7 @@ const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="con
   const maisLidas = (itens, fotos) => `<section class="mais-lidas${fotos ? ' mais-lidas--fotos' : ''}"><h2 class="bloco-titulo">Mais lidas</h2><ol>${itens.map(x => `<li>${fotos ? `<a class="mais-lidas__img" href="${url(x)}" tabindex="-1" aria-hidden="true">${imagem(x, 'mini')}</a><div>` : ''}${chapeu(x)}<a href="${url(x)}">${esc(x.tit)}</a>${fotos ? '</div>' : ''}</li>`).join('')}</ol></section>`;
   const menuLi = cs => `<ul class="menu">${cs.map(c => `<li class="menu-item"><a href="${urlCat(c)}">${esc(nomeMenu(c))}</a></li>`).join('')}</ul>`;
 
-  const cabeca = (titulo, desc, canon, extra = '') => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${esc(titulo)}</title><meta name="description" content="${esc(desc)}">${canon ? `<link rel="canonical" href="${esc(canon)}">` : ''}<link rel="icon" href="/estatico/img/sc-favicon-v2.ico"><link rel="apple-touch-icon" href="/estatico/img/sc-icone-180-v2.png"><link rel="preload" href="/estatico/fontes/merriweather-900.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/estatico/fontes/merriweather-400.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/estatico/tema.css">${extra}</head><body>`;
+  const cabeca = (titulo, desc, canon, extra = '') => `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>${esc(titulo)}</title><meta name="description" content="${esc(desc)}">${canon ? `<link rel="canonical" href="${esc(canon)}">` : ''}<link rel="icon" href="/estatico/img/sc-favicon-v2.ico"><link rel="apple-touch-icon" href="/estatico/img/sc-icone-180-v2.png"><link rel="preload" href="/estatico/fontes/merriweather-900.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/estatico/fontes/merriweather-400.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/estatico/tema.css?v=${VER}">${extra}</head><body>`;
   const cabecalho = home => `<a class="pular" href="#conteudo">Pular para o conteúdo</a>
 <header class="topo">${topoBarra(home)}<nav class="container topo__nav" aria-label="Editorias">${menuLi(menuCats)}</nav></header>
 <div class="topo-fixo" inert>${topoBarra(false)}</div>
@@ -88,7 +89,7 @@ const topoBarra = h1 => { const tag = h1 ? 'h1' : 'div'; return `<div class="con
 <div class="container rodape__grade"><div class="rodape__marca">${logo('escuro')}<p>Notícias de Balneário Camboriú e região</p>${redes()}${botaoGoogle()}</div>
 <nav class="rodape__col" aria-label="Editorias"><h2 class="rodape__titulo">Editorias</h2>${menuLi(menuCats)}</nav>
 <div class="rodape__col"><h2 class="rodape__titulo">Fale com a gente</h2><ul class="rodape__contato"><li><span>Redação e anúncios</span><a href="mailto:contato@schoje.news">contato@schoje.news</a></li><li><span>WhatsApp de atendimento</span><a href="https://wa.me/5548992088844" target="_blank" rel="noopener">(48) 99208-8844</a></li></ul></div></div>
-<div class="rodape__copy"><div class="container"><p>© ${new Date().getFullYear()} ${NOME}. Todos os direitos reservados. — Versão de teste (mobile first)</p></div></div></footer><script src="/estatico/tema.js" defer></script></body></html>`;
+<div class="rodape__copy"><div class="container"><p>© ${new Date().getFullYear()} ${NOME}. Todos os direitos reservados. — Versão de teste (mobile first)</p></div></div></footer><script src="/estatico/tema.js?v=${VER}" defer></script></body></html>`;
   const pagina = (titulo, desc, canon, home, corpo, extra) => cabeca(titulo, desc, canon, extra) + cabecalho(home) + corpo + rodape;
 
   /* ---------- HOME ---------- */
