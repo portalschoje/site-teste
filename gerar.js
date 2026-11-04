@@ -243,7 +243,7 @@ async function tempoHtml() {
   };
   /* ---------- MATÉRIAS ---------- */
   // Arquivo: matérias antigas (fora das 60 mais recentes) também ganham página. Só refaz se mudou ou se o gerador foi atualizado.
-  const VERSAO_GERADOR = '0.18.3', ARQ_VERSAO = path.join(OUT, '.versao');
+  const VERSAO_GERADOR = '0.18.4', ARQ_VERSAO = path.join(OUT, '.versao');
   const refazTudo = !fs.existsSync(ARQ_VERSAO) || fs.readFileSync(ARQ_VERSAO, 'utf8') !== VERSAO_GERADOR;
   const slugsL = new Set(L.map(y => y.slug));
   const extras = locaisTodos.filter(p => !slugsL.has(p.slug)).map(p => info(wpForma(p, porSlug.get(p.categoria)))), extrasSet = new Set(extras);

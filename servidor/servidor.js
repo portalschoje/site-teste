@@ -109,7 +109,7 @@ async function verificarBoletim() {
 let gerando = false;
 function gerarSite() {
   if (gerando) return Promise.resolve(); gerando = true;
-  return new Promise(ok => execFile(process.execPath, [path.join(__dirname, '..', 'gerar.js')], { timeout: 240000, env: Object.assign({}, process.env, { OUT: SITE_DIR, DADOS_DIR: DADOS }) }, (er, so, se) => { gerando = false; if (er) console.log('gerar erro:', (se || er.message).slice(0, 200)); ok(); }));
+  return new Promise(ok => execFile(process.execPath, [path.join(__dirname, '..', 'gerar.js')], { timeout: 240000, env: Object.assign({}, process.env, { OUT: SITE_DIR, DADOS_DIR: DADOS, SITE_URL: SITE_URL }) }, (er, so, se) => { gerando = false; if (er) console.log('gerar erro:', (se || er.message).slice(0, 200)); ok(); }));
 }
 const GERAR_MIN = C('GERAR_CADA_MIN') === '' ? 5 : +C('GERAR_CADA_MIN');
 async function ciclo() { if (GERAR_MIN !== 0) await gerarSite(); await verificarNovas(); await verificarBoletim(); }
