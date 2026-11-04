@@ -422,3 +422,62 @@
 		try { localStorage.setItem(chave, JSON.stringify({ q: Date.now(), d: D })); } catch (e) {}
 	}).catch(function () { raiz.innerHTML = '<p class="tp__carregando">Não foi possível carregar a previsão agora. Tente de novo em instantes.</p>'; });
 })();
+
+/* 0.10 — newsletter e notificações (servidor próprio, /api/) */
+(function () {
+	// Newsletter
+	document.querySelectorAll('.js-news').forEach(function (f) {
+		var msg = f.parentNode.querySelector('.js-news-msg');
+		f.addEventListener('submit', function (ev) {
+			ev.preventDefault();
+			var email = (f.elements.email.value || '').trim();
+			var btn = f.querySelector('button');
+			if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'Digite um e-mail válido.'; msg.className = 'news__msg js-news-msg news__msg--erro'; return; }
+			btn.disabled = true; msg.textContent = 'Enviando…'; msg.className = 'news__msg js-news-msg';
+			fetch('/api/news/inscrever', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: email }) })
+				.then(function (r) { return r.json(); })
+				.then(function (j) { msg.textContent = j.msg || 'Pronto!'; msg.className = 'news__msg js-news-msg' + (j.ok ? ' news__msg--ok' : ' news__msg--erro'); if (j.ok) f.reset(); })
+				.catch(function () { msg.textContent = 'Não foi possível agora. Tente de novo em instantes.'; msg.className = 'news__msg js-news-msg news__msg--erro'; })
+				.then(function () { btn.disabled = false; });
+		});
+	});
+
+	// Notificações push: o próprio site pergunta, sem botão fixo
+	if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+	var SEMANA = 7 * 24 * 3600 * 1000;
+	function guarda(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
+	function pega(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+	function b64(s) { var p = '='.repeat((4 - s.length % 4) % 4), r = (s + p).replace(/-/g, '+').replace(/_/g, '/'), raw = atob(r), a = new Uint8Array(raw.length); for (var i = 0; i < raw.length; i++) a[i] = raw.charCodeAt(i); return a; }
+	function inscreve(reg) {
+		return fetch('/api/push/chave').then(function (r) { return r.json(); }).then(function (j) {
+			if (!j.chave) throw new Error('sem chave');
+			return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64(j.chave) });
+		}).then(function (s) {
+			return fetch('/api/push/inscrever', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) });
+		});
+	}
+	function caixa(reg) {
+		var d = document.createElement('div');
+		d.className = 'push-aviso'; d.setAttribute('role', 'dialog'); d.setAttribute('aria-label', 'Receber notificações');
+		d.innerHTML = '<p class="push-aviso__txt"><strong>Quer receber as notícias de Balneário Camboriú?</strong><span>Avisamos você quando acontecer algo importante.</span></p><div class="push-aviso__bt"><button type="button" class="push-aviso__nao">Agora não</button><button type="button" class="push-aviso__sim">Quero receber</button></div>';
+		document.body.appendChild(d);
+		setTimeout(function () { d.classList.add('push-aviso--on'); }, 30);
+		function fecha() { d.classList.remove('push-aviso--on'); setTimeout(function () { d.remove(); }, 400); }
+		d.querySelector('.push-aviso__nao').addEventListener('click', function () { guarda('sc-push-nao', String(Date.now())); fecha(); });
+		d.querySelector('.push-aviso__sim').addEventListener('click', function () {
+			fecha();
+			Notification.requestPermission().then(function (p) {
+				if (p === 'granted') return inscreve(reg);
+				guarda('sc-push-nao', String(Date.now()));
+			}).catch(function () {});
+		});
+	}
+	navigator.serviceWorker.register('/sw.js').then(function () { return navigator.serviceWorker.ready; }).then(function (reg) {
+		if (Notification.permission === 'denied') return;
+		if (Notification.permission === 'granted') { reg.pushManager.getSubscription().then(function (s) { if (!s) inscreve(reg).catch(function () {}); }); return; }
+		var nao = +pega('sc-push-nao') || 0;
+		if (nao && Date.now() - nao < SEMANA) return;
+		function espera() { var c = document.getElementById('sc-cookies'); if (c && !c.hidden) { setTimeout(espera, 1500); return; } caixa(reg); }
+		fetch('/api/push/chave').then(function (r) { if (!r.ok) return; setTimeout(espera, 6000); }).catch(function () {});
+	});
+})();
